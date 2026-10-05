@@ -1,0 +1,27 @@
+/**
+ * Web App Manifest
+ * Enables "Add to Home Screen" behaviour on Android (FR-9, PRD Section 8).
+ * Theme and background colours reference the Aurora Design System primary token.
+ */
+{
+  "name": "Spotter",
+  "short_name": "Spotter",
+  "description": "Your gym attendance, balance, and rules without the front desk queue.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FCFCFF",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

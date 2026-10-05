@@ -1,0 +1,88 @@
+/*
+ * HOME SCREEN STYLES — ARCHIVED (Phase 0)
+ *
+ * This file was the placeholder home screen (Phase 0 Foundation).
+ * The root route (app/page.tsx) is now the full marketing landing page,
+ * styled by app/landing.module.css.
+ *
+ * This file is retained because components/auth/auth-shell.tsx and
+ * the member home screen will create their own CSS modules when
+ * those features are implemented.
+ *
+ * Consumes design system tokens only. No hardcoded values.
+ */
+
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  padding: var(--spacing-6);
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--color-surface-container-low);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-8);
+  box-shadow: var(--elevation-level1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-letter {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-22);
+  font-weight: var(--typography-font-weight-bold);
+  color: var(--color-on-primary);
+  line-height: 1;
+}
+
+.heading {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-24);
+  font-weight: var(--typography-font-weight-semi-bold);
+  line-height: var(--typography-line-height-32);
+  letter-spacing: var(--typography-letter-spacing-normal);
+  color: var(--color-on-surface);
+  text-align: center;
+}
+
+.subtext {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-14);
+  font-weight: var(--typography-font-weight-regular);
+  line-height: var(--typography-line-height-20);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.placeholder-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-12);
+  font-weight: var(--typography-font-weight-medium);
+  line-height: var(--typography-line-height-16);
+  letter-spacing: var(--typography-letter-spacing-wide);
+}

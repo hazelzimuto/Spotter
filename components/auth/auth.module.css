@@ -1,0 +1,232 @@
+/*
+ * AUTH SCREEN STYLES (FR-6)
+ * Consumes Aurora design system tokens only. No hardcoded values.
+ */
+
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-6);
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+}
+
+.card {
+  width: 100%;
+  max-width: var(--layout-content-form-width);
+  background-color: var(--color-surface-container-low);
+  border-radius: var(--component-card-radius);
+  padding: var(--component-card-padding);
+  box-shadow: var(--elevation-level2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.logo {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLetter {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-22);
+  font-weight: var(--typography-font-weight-bold);
+  line-height: var(--typography-line-height-24);
+  color: var(--color-on-primary-container);
+}
+
+.heading {
+  font-family: var(--typography-headline-small-font-family);
+  font-size: var(--typography-headline-small-font-size);
+  font-weight: var(--typography-headline-small-font-weight);
+  line-height: var(--typography-headline-small-line-height);
+  letter-spacing: var(--typography-headline-small-letter-spacing);
+  color: var(--color-on-surface);
+}
+
+.subtext {
+  font-family: var(--typography-body-medium-font-family);
+  font-size: var(--typography-body-medium-font-size);
+  font-weight: var(--typography-body-medium-font-weight);
+  line-height: var(--typography-body-medium-line-height);
+  letter-spacing: var(--typography-body-medium-letter-spacing);
+  color: var(--color-text-secondary);
+}
+
+/* ---- Form ---- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.label {
+  font-family: var(--typography-label-large-font-family);
+  font-size: var(--typography-label-large-font-size);
+  font-weight: var(--typography-label-large-font-weight);
+  line-height: var(--typography-label-large-line-height);
+  letter-spacing: var(--typography-label-large-letter-spacing);
+  color: var(--color-text-secondary);
+}
+
+.input {
+  width: 100%;
+  height: var(--component-input-height-lg);
+  padding: 0 var(--component-input-padding-horizontal);
+  border-radius: var(--component-input-radius);
+  border: var(--border-width-thin) solid var(--color-outline);
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  font-family: var(--typography-body-large-font-family);
+  font-size: var(--typography-body-large-font-size);
+  transition:
+    border-color var(--motion-duration-fast) var(--motion-easing-standard),
+    box-shadow var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.input:hover {
+  border-color: var(--color-on-surface-variant);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--state-focus-ring-width) var(--color-primary-container);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+/* PIN uses a wide tracking so the digits read as separate cells */
+.pinInput {
+  letter-spacing: var(--typography-letter-spacing-widest);
+  font-weight: var(--typography-font-weight-medium);
+}
+
+/* ---- Error ---- */
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--component-input-radius);
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  font-family: var(--typography-body-medium-font-family);
+  font-size: var(--typography-body-medium-font-size);
+  font-weight: var(--typography-font-weight-medium);
+  line-height: var(--typography-body-medium-line-height);
+}
+
+.helper {
+  font-family: var(--typography-body-small-font-family);
+  font-size: var(--typography-body-small-font-size);
+  font-weight: var(--typography-body-small-font-weight);
+  line-height: var(--typography-body-small-line-height);
+  color: var(--color-text-tertiary);
+}
+
+/* ---- Actions ---- */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.primaryButton {
+  padding: 1.125rem 1.125rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: var(--typography-label-large-font-family);
+  font-size: var(--typography-label-large-font-size);
+  font-weight: var(--typography-label-large-font-weight);
+  letter-spacing: var(--typography-label-large-letter-spacing);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  gap: var(--component-button-gap);
+  border: none;
+  cursor: pointer;
+  transition:
+    opacity var(--motion-duration-fast) var(--motion-easing-standard),
+    background-color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.primaryButton:hover:not(:disabled) {
+  opacity: var(--state-hover-opacity);
+}
+
+.primaryButton:active:not(:disabled) {
+  opacity: var(--state-pressed-opacity);
+}
+
+.primaryButton:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* ---- Footer note ---- */
+
+.footnote {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-family: var(--typography-body-small-font-family);
+  font-size: var(--typography-body-small-font-size);
+  line-height: var(--typography-body-small-line-height);
+  color: var(--color-text-tertiary);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-highest);
+  color: var(--color-text-secondary);
+  font-family: var(--typography-label-medium-font-family);
+  font-size: var(--typography-label-medium-font-size);
+  font-weight: var(--typography-label-medium-font-weight);
+  line-height: var(--typography-label-medium-line-height);
+  letter-spacing: var(--typography-label-medium-letter-spacing);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .primaryButton {
+    transition-duration: var(--motion-duration-instant);
+  }
+}
