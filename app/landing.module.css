@@ -208,11 +208,11 @@
 }
 
 .heroTitle {
-  font-family: var(--typography-font-family-primary);
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: var(--typography-font-weight-bold);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-family: var(--typography-display-large-font-family);
+  font-size: var(--typography-display-large-font-size);
+  font-weight: var(--typography-display-large-font-weight);
+  line-height: var(--typography-display-large-line-height);
+  letter-spacing: var(--typography-display-large-letter-spacing);
   color: #ffffff;
   text-wrap: balance;
 }
@@ -936,6 +936,11 @@
 
   .navBrandName {
     display: none;
+  }
+
+  .heroTitle {
+    font-size: var(--typography-display-medium-font-size);
+    line-height: var(--typography-display-medium-line-height);
   }
 
   .statsInner {
