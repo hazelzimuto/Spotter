@@ -116,6 +116,216 @@
   opacity: var(--state-hover-opacity);
 }
 
+.hamburgerBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 0.5rem;
+  border: var(--border-width-thin) solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing-standard),
+    border-color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.hamburgerBtn:hover,
+.hamburgerBtn:focus-visible {
+  background-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   MOBILE FULL-SCREEN SLIDER
+   ============================================================ */
+.mobileSlider {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  z-index: var(--z-index-modal, 100);
+  background-color: var(--color-background);
+  background: radial-gradient(
+    circle at 90% 12%,
+    color-mix(in srgb, var(--color-primary) 22%, transparent) 0%,
+    transparent 65%
+  ), var(--color-background);
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-6);
+  transform: translateX(100%);
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.35s ease;
+  visibility: hidden;
+  overflow-y: auto;
+}
+
+.mobileSliderOpen {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+.sliderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--spacing-6);
+  border-bottom: var(--border-width-thin) solid var(--color-outline-variant);
+}
+
+.sliderBrand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.sliderBrandName {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-20);
+  font-weight: var(--typography-font-weight-bold);
+  color: #ffffff;
+  letter-spacing: var(--typography-letter-spacing-tight);
+}
+
+.sliderCloseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 0.5rem;
+  border: var(--border-width-thin) solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing-standard),
+    border-color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.sliderCloseBtn:hover,
+.sliderCloseBtn:focus-visible {
+  background-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.sliderBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-8);
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+  padding: var(--spacing-8) 0;
+}
+
+.sliderTaglineWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.sliderBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  color: var(--color-primary);
+  font-size: var(--typography-font-size-12);
+  font-weight: var(--typography-font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sliderTitle {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-26, 1.625rem);
+  font-weight: var(--typography-font-weight-bold);
+  line-height: 1.25;
+  color: #ffffff;
+  letter-spacing: var(--typography-letter-spacing-tight);
+}
+
+.sliderSubtext {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-15);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.sliderActions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: var(--spacing-3);
+}
+
+.sliderSignUpBtn {
+  width: 100%;
+  padding: 1.125rem 1.125rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: var(--typography-label-large-font-family);
+  font-size: var(--typography-label-large-font-size);
+  font-weight: var(--typography-label-large-font-weight);
+  letter-spacing: var(--typography-label-large-letter-spacing);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  line-height: 1;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--color-primary) 40%, transparent);
+  transition:
+    transform var(--motion-duration-fast) var(--motion-easing-standard),
+    box-shadow var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.sliderSignUpBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--color-primary) 55%, transparent);
+}
+
+.sliderSignInBtn {
+  width: 100%;
+  padding: 1.125rem 1.125rem;
+  border-radius: 0.5rem;
+  border: var(--border-width-thin) solid rgba(255, 255, 255, 0.24);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-family: var(--typography-label-large-font-family);
+  font-size: var(--typography-label-large-font-size);
+  font-weight: var(--typography-label-large-font-weight);
+  letter-spacing: var(--typography-label-large-letter-spacing);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing-standard),
+    border-color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.sliderSignInBtn:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
 /* ============================================================
    MAIN WRAPPER & ANIMATED ABSTRACT STRIPED BACKGROUND
    ============================================================ */
@@ -1063,6 +1273,16 @@
 /* ============================================================
    RESPONSIVE
    ============================================================ */
+@media (max-width: 768px) {
+  .navSignUp {
+    display: none;
+  }
+
+  .hamburgerBtn {
+    display: inline-flex;
+  }
+}
+
 @media (max-width: 600px) {
   .nav {
     padding: 0 var(--spacing-4);
@@ -1113,7 +1333,8 @@
   .heroCta,
   .heroScroll,
   .pageStripesBg,
-  .pageStripesLightBeams {
+  .pageStripesLightBeams,
+  .mobileSlider {
     animation: none;
     transition: none;
   }

@@ -108,6 +108,18 @@ This journal tracks engineering decisions, architectural milestones, and impleme
 
 ---
 
+### Phase 8: Mobile Hamburger Navigation & Slide-in Drawer
+- **Responsive Mobile Navigation**:
+  - In mobile view (`max-width: 768px`), hid the top-bar `navSignUp` ("Get started") button and rendered a clean, accessible hamburger menu icon on the right side of the header.
+- **Full-Screen Slide-in Drawer (`.mobileSlider`)**:
+  - Implemented a full-screen drawer that smoothly slides in from the right (`transform: translateX(100%)` ➜ `transform: translateX(0)`) upon tapping the hamburger icon.
+  - Positioned an "X" close button at the top-right of the slider header.
+  - Embedded the primary **Get started** action (and "Already a member? Sign in" option) inside the centered drawer body.
+  - Added background scroll lock on `document.body` and keyboard `Escape` shortcut listener to dismiss the drawer.
+  - Included fallback transitions in `@media (prefers-reduced-motion: reduce)`.
+
+---
+
 ## 💡 Key Architectural Decisions & Rationale
 
 1. **Why `proxy.ts` instead of complex database middleware?**
