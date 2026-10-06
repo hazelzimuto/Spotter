@@ -137,7 +137,14 @@ export default async function LandingPage() {
         </nav>
       </header>
 
-      <main id="main-content">
+      <main id="main-content" className={styles.main}>
+        {/* ── Full-page animated striped abstract background ── */}
+        <div className={styles.pageStripesContainer} aria-hidden="true">
+          <div className={styles.pageStripesBg} />
+          <div className={styles.pageStripesLightBeams} />
+          <div className={styles.pageStripesOverlay} />
+        </div>
+
         {/* ── Hero ── */}
         <section className={styles.hero} aria-labelledby="hero-heading">
           <div className={styles.heroBg} aria-hidden="true" />

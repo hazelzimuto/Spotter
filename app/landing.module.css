@@ -117,10 +117,95 @@
 }
 
 /* ============================================================
+   MAIN WRAPPER & ANIMATED ABSTRACT STRIPED BACKGROUND
+   ============================================================ */
+.main {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.pageStripesContainer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.pageStripesBg {
+  position: absolute;
+  top: -30%;
+  left: -30%;
+  width: 160%;
+  height: 160%;
+  background-image: url('/abstract-stripes.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.38;
+  filter: contrast(1.15) brightness(0.92);
+  will-change: transform;
+  animation: stripeDrift 28s ease-in-out infinite alternate;
+}
+
+.pageStripesLightBeams {
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: repeating-linear-gradient(
+    -42deg,
+    transparent 0px,
+    transparent 90px,
+    color-mix(in srgb, var(--color-primary) 12%, transparent) 90px,
+    color-mix(in srgb, var(--color-tertiary) 20%, transparent) 130px,
+    color-mix(in srgb, var(--primitive-color-primary-80) 14%, transparent) 150px,
+    transparent 170px,
+    transparent 320px
+  );
+  mix-blend-mode: screen;
+  will-change: transform;
+  animation: stripeBeamSweep 22s linear infinite;
+}
+
+.pageStripesOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(27, 27, 31, 0.25) 0%,
+    rgba(27, 27, 31, 0.65) 55%,
+    rgba(27, 27, 31, 0.94) 100%
+  );
+}
+
+@keyframes stripeDrift {
+  0% {
+    transform: scale(1.02) translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.08) translate3d(-2.5%, 1.8%, 0) rotate(1.2deg);
+  }
+  100% {
+    transform: scale(1.04) translate3d(2%, -1.2%, 0) rotate(-0.8deg);
+  }
+}
+
+@keyframes stripeBeamSweep {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(160px, 160px, 0);
+  }
+}
+
+/* ============================================================
    HERO
    ============================================================ */
 .hero {
   position: relative;
+  z-index: 1;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -139,6 +224,8 @@
   background-position: center;
   background-repeat: no-repeat;
   z-index: 0;
+  opacity: 0.32;
+  mix-blend-mode: luminosity;
 }
 
 .heroOverlay {
@@ -146,9 +233,9 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(27, 27, 31, 0.72) 0%,
-    rgba(27, 27, 31, 0.60) 50%,
-    rgba(27, 27, 31, 0.92) 100%
+    rgba(27, 27, 31, 0.55) 0%,
+    rgba(27, 27, 31, 0.35) 50%,
+    rgba(27, 27, 31, 0.85) 100%
   );
   z-index: 1;
 }
@@ -327,7 +414,11 @@
    STATS STRIP
    ============================================================ */
 .stats {
-  background-color: var(--color-surface-container);
+  position: relative;
+  z-index: 1;
+  background-color: color-mix(in srgb, var(--color-surface-container) 80%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: var(--border-width-thin) solid var(--color-outline-variant);
   border-bottom: var(--border-width-thin) solid var(--color-outline-variant);
   padding: var(--spacing-8) var(--spacing-6);
@@ -375,8 +466,12 @@
    FEATURES
    ============================================================ */
 .features {
+  position: relative;
+  z-index: 1;
   padding: var(--spacing-20) var(--spacing-6);
-  background-color: var(--color-background);
+  background-color: color-mix(in srgb, var(--color-background) 82%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .featuresInner {
@@ -483,8 +578,12 @@
    HOW IT WORKS
    ============================================================ */
 .how {
+  position: relative;
+  z-index: 1;
   padding: var(--spacing-20) var(--spacing-6);
-  background-color: var(--color-surface-container-lowest);
+  background-color: color-mix(in srgb, var(--color-surface-container-lowest) 80%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .howInner {
@@ -540,12 +639,16 @@
    CTA BAND
    ============================================================ */
 .cta {
+  position: relative;
+  z-index: 1;
   padding: var(--spacing-20) var(--spacing-6);
   background: linear-gradient(
     135deg,
-    var(--primitive-color-primary-10) 0%,
-    var(--primitive-color-secondary-10) 100%
+    color-mix(in srgb, var(--primitive-color-primary-10) 80%, transparent) 0%,
+    color-mix(in srgb, var(--primitive-color-secondary-10) 80%, transparent) 100%
   );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -631,8 +734,12 @@
    FOOTER
    ============================================================ */
 .footer {
+  position: relative;
+  z-index: 1;
   padding: var(--spacing-8) var(--spacing-6);
-  background-color: var(--color-background);
+  background-color: color-mix(in srgb, var(--color-background) 85%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: var(--border-width-thin) solid var(--color-outline-variant);
   display: flex;
   align-items: center;
@@ -976,7 +1083,9 @@
   .modalCard,
   .featureCard,
   .heroCta,
-  .heroScroll {
+  .heroScroll,
+  .pageStripesBg,
+  .pageStripesLightBeams {
     animation: none;
     transition: none;
   }

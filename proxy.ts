@@ -55,6 +55,6 @@ export const config = {
   // Run on every route except Next internals, the webhook endpoints, and
   // static assets — otherwise auth redirects would block CSS and JS.
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|manifest.json|.*\\.(?:png|svg|ico|webp|woff2?)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|manifest.json|.*\\.(?:png|jpg|jpeg|svg|ico|webp|woff2?)$).*)',
   ],
 }

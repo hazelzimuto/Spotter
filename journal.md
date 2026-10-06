@@ -64,6 +64,18 @@ This journal tracks engineering decisions, architectural milestones, and impleme
 
 ---
 
+### Phase 5: Animated Striped Abstract Background & Design Polish
+- **Full-Page Striped Visual**: Added a custom generated abstract striped background graphic (`/abstract-stripes.jpg`) cutting diagonally across the entire marketing page with Aurora-aligned luminous indigo (`#4F46E5`) and violet (`#7C3AED` / `#665666`) ribbons.
+- **Performant CSS Animation**:
+  - `stripeDrift`: Multi-axis slow floating and rotation (28s duration).
+  - `stripeBeamSweep`: Ambient repeating diagonal light beam sweep with `screen` blend mode (22s duration).
+  - Hardware accelerated via `will-change: transform` and `translate3d`.
+  - Full support for `prefers-reduced-motion: reduce`.
+- **Translucent Section Blending**: Updated `.hero`, `.stats`, `.features`, `.how`, `.cta`, and `.footer` to use layered translucent backgrounds with `backdrop-filter: blur(20px)` so the animated stripes continuously cut across all sections.
+- **Proxy Middleware Static Route Fix**: Updated `proxy.ts` matcher regex to include `.jpg` and `.jpeg` so static marketing imagery is exempt from auth redirection gates.
+
+---
+
 ## 💡 Key Architectural Decisions & Rationale
 
 1. **Why `proxy.ts` instead of complex database middleware?**
