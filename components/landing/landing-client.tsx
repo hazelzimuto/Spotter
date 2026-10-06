@@ -52,10 +52,20 @@ export function NavActions() {
   return (
     <>
       <nav className={styles.navActions} aria-label="Authentication actions">
-        <button id="nav-sign-in-btn" className={styles.navSignIn} onClick={openSignIn}>
+        <button
+          id="nav-sign-in-btn"
+          className={styles.navSignIn}
+          onClick={openSignIn}
+          aria-haspopup="dialog"
+        >
           Sign in
         </button>
-        <button id="nav-sign-up-btn" className={styles.navSignUp} onClick={openSignUp}>
+        <button
+          id="nav-sign-up-btn"
+          className={styles.navSignUp}
+          onClick={openSignUp}
+          aria-haspopup="dialog"
+        >
           Get started
         </button>
         <button
@@ -63,8 +73,10 @@ export function NavActions() {
           id="hamburger-menu-btn"
           className={styles.hamburgerBtn}
           onClick={() => setMenuOpen(true)}
-          aria-label="Open menu"
+          aria-label="Open navigation menu"
           aria-expanded={menuOpen}
+          aria-controls="mobile-nav-slider"
+          aria-haspopup="dialog"
         >
           <svg
             width="22"
@@ -90,7 +102,7 @@ export function NavActions() {
         className={`${styles.mobileSlider} ${menuOpen ? styles.mobileSliderOpen : ''}`}
         role="dialog"
         aria-modal="true"
-        aria-label="Mobile navigation menu"
+        aria-labelledby="mobile-nav-title"
       >
         <div className={styles.sliderHeader}>
           <div className={styles.sliderBrand}>
@@ -105,7 +117,7 @@ export function NavActions() {
             id="mobile-slider-close-btn"
             className={styles.sliderCloseBtn}
             onClick={() => setMenuOpen(false)}
-            aria-label="Close menu"
+            aria-label="Close navigation menu"
           >
             <svg
               width="22"
@@ -127,7 +139,9 @@ export function NavActions() {
         <div className={styles.sliderBody}>
           <div className={styles.sliderTaglineWrap}>
             <span className={styles.sliderBadge}>Private Member Portal</span>
-            <h2 className={styles.sliderTitle}>Your gym, at your fingertips</h2>
+            <h2 id="mobile-nav-title" className={styles.sliderTitle}>
+              Your gym, at your fingertips
+            </h2>
             <p className={styles.sliderSubtext}>
               Check your attendance, membership balance, and gym rules in seconds — without waiting at the desk.
             </p>
@@ -138,6 +152,7 @@ export function NavActions() {
               id="slider-get-started-btn"
               className={styles.sliderSignUpBtn}
               onClick={handleSliderSignUp}
+              aria-haspopup="dialog"
             >
               Get started
             </button>
@@ -145,6 +160,7 @@ export function NavActions() {
               id="slider-sign-in-btn"
               className={styles.sliderSignInBtn}
               onClick={handleSliderSignIn}
+              aria-haspopup="dialog"
             >
               Already a member? Sign in
             </button>
@@ -171,11 +187,21 @@ export function HeroActions() {
 
   return (
     <>
-      <div className={styles.heroActions}>
-        <button id="hero-get-started-btn" className={styles.heroCta} onClick={openSignUp}>
+      <div className={styles.heroActions} role="group" aria-label="Hero actions">
+        <button
+          id="hero-get-started-btn"
+          className={styles.heroCta}
+          onClick={openSignUp}
+          aria-haspopup="dialog"
+        >
           Get started — it's free
         </button>
-        <button id="hero-sign-in-btn" className={styles.heroSecondary} onClick={openSignIn}>
+        <button
+          id="hero-sign-in-btn"
+          className={styles.heroSecondary}
+          onClick={openSignIn}
+          aria-haspopup="dialog"
+        >
           Sign in
         </button>
       </div>
@@ -199,11 +225,21 @@ export function CtaActions() {
 
   return (
     <>
-      <div className={styles.ctaActions}>
-        <button id="cta-get-started-btn" className={styles.ctaButton} onClick={openSignUp}>
+      <div className={styles.ctaActions} role="group" aria-label="Get started actions">
+        <button
+          id="cta-get-started-btn"
+          className={styles.ctaButton}
+          onClick={openSignUp}
+          aria-haspopup="dialog"
+        >
           Get started
         </button>
-        <button id="cta-sign-in-btn" className={styles.ctaSignIn} onClick={openSignIn}>
+        <button
+          id="cta-sign-in-btn"
+          className={styles.ctaSignIn}
+          onClick={openSignIn}
+          aria-haspopup="dialog"
+        >
           Already a member? Sign in
         </button>
       </div>
@@ -263,12 +299,14 @@ export function FooterLegal() {
 
   return (
     <>
-      <nav className={styles.footerLinks} aria-label="Legal links">
+      <nav className={styles.footerLinks} aria-label="Legal and policy links">
         <button
           type="button"
           id="footer-privacy-btn"
           className={styles.footerLink}
           onClick={() => openView('privacy')}
+          aria-label="View Spotter Privacy Policy"
+          aria-haspopup="dialog"
         >
           Privacy Policy
         </button>
@@ -280,6 +318,8 @@ export function FooterLegal() {
           id="footer-terms-btn"
           className={styles.footerLink}
           onClick={() => openView('terms')}
+          aria-label="View Spotter Terms of Service"
+          aria-haspopup="dialog"
         >
           Terms of Service
         </button>

@@ -5,6 +5,46 @@
  */
 
 /* ============================================================
+   ACCESSIBILITY / SKIP LINK
+   ============================================================ */
+.skipLink {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.skipLink:focus,
+.skipLink:focus-visible {
+  position: fixed;
+  top: var(--spacing-4);
+  left: var(--spacing-4);
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  z-index: calc(var(--z-index-modal, 100) + 10);
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-3) var(--spacing-5);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-14);
+  font-weight: var(--typography-font-weight-semi-bold);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  text-decoration: none;
+  outline: 2px solid var(--color-on-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================================
    NAV
    ============================================================ */
 .nav {

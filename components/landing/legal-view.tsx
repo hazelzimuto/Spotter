@@ -73,6 +73,7 @@ export function LegalView({
               className={styles.backLink}
               onClick={onClose}
               id="legal-back-btn"
+              aria-label="Close legal view and return to Spotter"
             >
               <span aria-hidden="true">←</span> Back to Spotter
             </button>
@@ -93,7 +94,7 @@ export function LegalView({
                 </span>
               </div>
 
-              <h1 className={styles.docTitle}>Privacy Policy</h1>
+              <h1 id="privacy-title" className={styles.docTitle}>Privacy Policy</h1>
 
               <div className={styles.docMeta}>
                 <span>Effective Date: October 2026</span>
@@ -101,16 +102,23 @@ export function LegalView({
                 <span>Applicable Law: Federal Republic of Nigeria</span>
               </div>
 
-              <nav className={styles.docTabs} aria-label="Legal document switcher">
+              <nav className={styles.docTabs} role="tablist" aria-label="Legal document switcher">
                 <button
                   type="button"
+                  id="tab-privacy"
+                  role="tab"
+                  aria-selected={true}
+                  aria-controls="privacy-panel"
                   className={`${styles.docTab} ${styles.docTabActive}`}
-                  aria-current="page"
                 >
                   Privacy Policy
                 </button>
                 <button
                   type="button"
+                  id="tab-terms"
+                  role="tab"
+                  aria-selected={false}
+                  aria-controls="terms-panel"
                   className={styles.docTab}
                   onClick={() => onSwitchView('terms')}
                 >
@@ -135,7 +143,7 @@ export function LegalView({
               </p>
             </div>
 
-            <div className={styles.content}>
+            <div id="privacy-panel" role="tabpanel" aria-labelledby="tab-privacy" className={styles.content}>
               {/* Section 1 */}
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>1. Scope and Principles</h2>
@@ -389,7 +397,7 @@ export function LegalView({
                 <span className={styles.badge}>Member Agreement</span>
               </div>
 
-              <h1 className={styles.docTitle}>Terms of Service</h1>
+              <h1 id="terms-title" className={styles.docTitle}>Terms of Service</h1>
 
               <div className={styles.docMeta}>
                 <span>Effective Date: October 2026</span>
@@ -397,9 +405,13 @@ export function LegalView({
                 <span>Governing Jurisdiction: Federal Republic of Nigeria</span>
               </div>
 
-              <nav className={styles.docTabs} aria-label="Legal document switcher">
+              <nav className={styles.docTabs} role="tablist" aria-label="Legal document switcher">
                 <button
                   type="button"
+                  id="tab-privacy-terms-view"
+                  role="tab"
+                  aria-selected={false}
+                  aria-controls="privacy-panel"
                   className={styles.docTab}
                   onClick={() => onSwitchView('privacy')}
                 >
@@ -407,8 +419,11 @@ export function LegalView({
                 </button>
                 <button
                   type="button"
+                  id="tab-terms-terms-view"
+                  role="tab"
+                  aria-selected={true}
+                  aria-controls="terms-panel"
                   className={`${styles.docTab} ${styles.docTabActive}`}
-                  aria-current="page"
                 >
                   Terms of Service
                 </button>
@@ -428,7 +443,7 @@ export function LegalView({
               </p>
             </div>
 
-            <div className={styles.content}>
+            <div id="terms-panel" role="tabpanel" aria-labelledby="tab-terms-terms-view" className={styles.content}>
               {/* Section 1 */}
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>1. Eligibility and Access</h2>
@@ -634,6 +649,7 @@ export function LegalView({
             type="button"
             className={styles.footerLink}
             onClick={() => onSwitchView('privacy')}
+            aria-label="Switch to Privacy Policy view"
           >
             Privacy Policy
           </button>
@@ -644,6 +660,7 @@ export function LegalView({
             type="button"
             className={styles.footerLink}
             onClick={() => onSwitchView('terms')}
+            aria-label="Switch to Terms of Service view"
           >
             Terms of Service
           </button>
@@ -654,6 +671,7 @@ export function LegalView({
             type="button"
             className={styles.footerLink}
             onClick={onClose}
+            aria-label="Close legal view and return to Spotter"
           >
             Back to Spotter
           </button>

@@ -124,8 +124,13 @@ export default async function LandingPage() {
 
   return (
     <>
+      {/* ── Accessible skip to main content link ── */}
+      <a href="#main-content" className={styles.skipLink}>
+        Skip to main content
+      </a>
+
       {/* ── Navigation ── */}
-      <header>
+      <header role="banner">
         <nav className={styles.nav} aria-label="Main navigation">
           <a href="/" className={styles.navBrand} aria-label="Spotter home">
             <div className={styles.navLogo} aria-hidden="true">
@@ -138,7 +143,7 @@ export default async function LandingPage() {
         </nav>
       </header>
 
-      <main id="main-content" className={styles.main}>
+      <main id="main-content" className={styles.main} tabIndex={-1}>
         {/* ── Full-page animated striped abstract background ── */}
         <div className={styles.pageStripesContainer} aria-hidden="true">
           <div className={styles.pageStripesBg} />
@@ -188,21 +193,33 @@ export default async function LandingPage() {
         </section>
 
         {/* ── Stats strip ── */}
-        <section className={styles.stats} aria-label="Key metrics">
+        <section className={styles.stats} aria-label="Key performance metrics">
           <div className={styles.statsInner}>
-            <div className={styles.stat}>
+            <div
+              className={styles.stat}
+              role="group"
+              aria-label="80% fewer front desk interruptions targeted in month one"
+            >
               <span className={styles.statNumber}>80%</span>
               <span className={styles.statLabel}>
                 fewer front desk interruptions targeted in month one
               </span>
             </div>
-            <div className={styles.stat}>
+            <div
+              className={styles.stat}
+              role="group"
+              aria-label="3 seconds target answer time for any member question"
+            >
               <span className={styles.statNumber}>3s</span>
               <span className={styles.statLabel}>
                 target answer time for any member question
               </span>
             </div>
-            <div className={styles.stat}>
+            <div
+              className={styles.stat}
+              role="group"
+              aria-label="100% of answers grounded in approved gym records"
+            >
               <span className={styles.statNumber}>100%</span>
               <span className={styles.statLabel}>
                 answers grounded in approved gym records — no invention
@@ -284,7 +301,11 @@ export default async function LandingPage() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className={styles.footer}>
+      <footer
+        className={styles.footer}
+        role="contentinfo"
+        aria-label="Site footer"
+      >
         <div className={styles.footerBrand}>
           <div className={styles.navLogo} aria-hidden="true">
             <span className={styles.navLogoLetter}>S</span>

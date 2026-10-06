@@ -118,6 +118,19 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Added background scroll lock on `document.body` and keyboard `Escape` shortcut listener to dismiss the drawer.
   - Included fallback transitions in `@media (prefers-reduced-motion: reduce)`.
 
+### Phase 9: Accessibility (A11y) & ARIA Standardization
+- **Landmarks & Skip Navigation**:
+  - Added off-screen `.skipLink` targeting `#main-content`, revealed on `:focus-visible` with Aurora tokens.
+  - Added explicit semantic landmarks: `header role="banner"`, `main id="main-content" tabIndex={-1}`, and `footer role="contentinfo" aria-label="Site footer"`.
+- **Navigation & Mobile Drawer ARIA Roles**:
+  - Added `aria-label="Open navigation menu"`, `aria-expanded={menuOpen}`, `aria-controls="mobile-nav-slider"`, and `aria-haspopup="dialog"` to the mobile hamburger toggle button.
+  - Formatted the slide-in menu drawer with `role="dialog"`, `aria-modal="true"`, `aria-labelledby="mobile-nav-title"`, and `aria-label="Close navigation menu"` on the close button.
+  - Added `aria-haspopup="dialog"` on all buttons that open modals or dialogs.
+- **Content Lists, Metrics & Legal Views**:
+  - Added descriptive `aria-label`s and `role="group"` on the stat metrics strip.
+  - Labeled `aria-label="Feature list"` and `aria-label="Onboarding steps"` for screen reader clarity.
+  - Configured full WAI-ARIA tab pattern (`role="tablist"`, `role="tab"`, `aria-selected`, `aria-controls`, `role="tabpanel"`) for in-place Privacy Policy and Terms of Service views.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale
