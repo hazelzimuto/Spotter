@@ -328,9 +328,13 @@
   gap: var(--spacing-3);
 }
 
-.footerCopy {
+.footerCopy,
+.footerLink {
   font-family: var(--typography-body-small-font-family);
   font-size: var(--typography-body-small-font-size);
+  font-weight: var(--typography-font-weight-regular);
+  line-height: var(--typography-body-small-line-height);
+  letter-spacing: var(--typography-body-small-letter-spacing);
   color: var(--color-text-tertiary);
 }
 
@@ -342,9 +346,6 @@
 }
 
 .footerLink {
-  font-family: var(--typography-body-small-font-family);
-  font-size: var(--typography-body-small-font-size);
-  color: var(--color-text-secondary);
   text-decoration: none;
   transition: color var(--motion-duration-fast) var(--motion-easing-standard);
 }
@@ -357,7 +358,8 @@
 
 .footerSeparator {
   color: var(--color-text-tertiary);
-  font-size: var(--typography-font-size-12);
+  font-size: var(--typography-body-small-font-size);
+  line-height: var(--typography-body-small-line-height);
   user-select: none;
 }
 
