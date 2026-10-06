@@ -15,8 +15,17 @@ const SESSION_COOKIE = 'spotter_session'
 /** Activation paths reachable without a session. */
 const ACTIVATION_PATHS = ['/activate', '/activate/pin']
 
+/** Informational legal pages reachable by both visitors and members. */
+const PUBLIC_LEGAL_PATHS = ['/privacy', '/terms']
+
 function isActivationPath(pathname: string) {
   return ACTIVATION_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  )
+}
+
+function isPublicLegalPath(pathname: string) {
+  return PUBLIC_LEGAL_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   )
 }
@@ -40,6 +49,11 @@ export default function proxy(request: NextRequest) {
 
   // Activation flow is public for unauthenticated visitors.
   if (isActivationPath(pathname)) {
+    return NextResponse.next()
+  }
+
+  // Legal and informational pages are accessible to everyone.
+  if (isPublicLegalPath(pathname)) {
     return NextResponse.next()
   }
 

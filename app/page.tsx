@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth/session'
 import {
@@ -292,9 +293,17 @@ export default async function LandingPage() {
             © {year} Spotter. Private member access only.
           </span>
         </div>
-        <span className={styles.footerNote}>
-          Answers are grounded exclusively in approved gym records.
-        </span>
+        <nav className={styles.footerLinks} aria-label="Legal links">
+          <Link href="/privacy" className={styles.footerLink}>
+            Privacy Policy
+          </Link>
+          <span className={styles.footerSeparator} aria-hidden="true">
+            •
+          </span>
+          <Link href="/terms" className={styles.footerLink}>
+            Terms of Service
+          </Link>
+        </nav>
       </footer>
     </>
   )

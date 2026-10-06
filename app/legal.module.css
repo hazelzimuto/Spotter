@@ -1,0 +1,377 @@
+/*
+ * LEGAL PAGES STYLES (Privacy Policy & Terms of Service)
+ * Consumes Aurora design system tokens only.
+ */
+
+.pageWrapper {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background gradient ambiance matching marketing hero */
+.backgroundAmbiance {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 480px;
+  background: radial-gradient(
+    circle at 50% -20%,
+    color-mix(in srgb, var(--color-primary) 18%, transparent) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Top Header / Navigation ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-sticky, 20);
+  background-color: color-mix(in srgb, var(--color-background) 85%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: var(--border-width-thin) solid var(--color-outline-variant);
+  padding: var(--spacing-4) var(--spacing-6);
+}
+
+.navInner {
+  max-width: var(--layout-content-max-width, 1200px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.navBrand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  text-decoration: none;
+  color: inherit;
+}
+
+.navLogo {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-container) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--elevation-level1);
+}
+
+.navLogoLetter {
+  color: var(--color-on-primary, #ffffff);
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-18);
+  font-weight: var(--typography-font-weight-bold);
+  line-height: 1;
+}
+
+.navBrandName {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-20);
+  font-weight: var(--typography-font-weight-bold);
+  letter-spacing: var(--typography-letter-spacing-tight);
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-family: var(--typography-label-medium-font-family, inherit);
+  font-size: var(--typography-font-size-14);
+  font-weight: var(--typography-font-weight-medium);
+  color: var(--color-text-secondary);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  border: var(--border-width-thin) solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-low);
+  transition: all var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.backLink:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-container);
+}
+
+/* ── Content Container ── */
+.mainContainer {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-10) var(--spacing-6) var(--spacing-16);
+}
+
+/* ── Hero / Title Header ── */
+.docHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-8);
+  padding-bottom: var(--spacing-8);
+  border-bottom: var(--border-width-thin) solid var(--color-outline-variant);
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  color: var(--color-primary);
+  font-size: var(--typography-font-size-12);
+  font-weight: var(--typography-font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lawBadge {
+  background-color: color-mix(in srgb, #10b981 15%, transparent);
+  border-color: color-mix(in srgb, #10b981 30%, transparent);
+  color: #10b981;
+}
+
+.docTitle {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-36, 2.25rem);
+  font-weight: var(--typography-font-weight-bold);
+  line-height: 1.2;
+  letter-spacing: var(--typography-letter-spacing-tight);
+  color: var(--color-on-background);
+}
+
+.docMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--typography-font-size-14);
+  color: var(--color-text-tertiary);
+  flex-wrap: wrap;
+}
+
+/* Tab Switcher between Legal Docs */
+.docTabs {
+  display: flex;
+  gap: var(--spacing-2);
+  background-color: var(--color-surface-container-low);
+  padding: var(--spacing-1);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-thin) solid var(--color-outline-variant);
+  width: fit-content;
+  margin-top: var(--spacing-2);
+}
+
+.docTab {
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-size: var(--typography-font-size-14);
+  font-weight: var(--typography-font-weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.docTab:hover {
+  color: var(--color-on-background);
+}
+
+.docTabActive {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-primary);
+  font-weight: var(--typography-font-weight-semibold);
+  box-shadow: var(--elevation-level1);
+}
+
+/* Callout Box */
+.callout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4) var(--spacing-5);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface-container-low));
+  border: var(--border-width-thin) solid color-mix(in srgb, var(--color-primary) 25%, transparent);
+  margin-bottom: var(--spacing-8);
+}
+
+.calloutTitle {
+  font-size: var(--typography-font-size-16);
+  font-weight: var(--typography-font-weight-semibold);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.calloutText {
+  font-size: var(--typography-font-size-14);
+  line-height: var(--typography-line-height-24);
+  color: var(--color-text-secondary);
+}
+
+/* ── Content Sections ── */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.sectionTitle {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-22, 1.375rem);
+  font-weight: var(--typography-font-weight-bold);
+  color: var(--color-on-background);
+  letter-spacing: var(--typography-letter-spacing-tight);
+}
+
+.paragraph {
+  font-family: var(--typography-font-family-primary);
+  font-size: var(--typography-font-size-16);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding-left: var(--spacing-6);
+  list-style-type: disc;
+}
+
+.listItem {
+  font-size: var(--typography-font-size-15, 0.9375rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.listItem strong {
+  color: var(--color-on-background);
+  font-weight: var(--typography-font-weight-semibold);
+}
+
+/* Highlight card for privacy rights / key terms */
+.highlightCard {
+  background-color: var(--color-surface-container-low);
+  border: var(--border-width-thin) solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.highlightCardTitle {
+  font-size: var(--typography-font-size-16);
+  font-weight: var(--typography-font-weight-semibold);
+  color: var(--color-on-background);
+}
+
+/* ── Footer ── */
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: var(--spacing-8) var(--spacing-6);
+  background-color: color-mix(in srgb, var(--color-background) 85%, transparent);
+  border-top: var(--border-width-thin) solid var(--color-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  max-width: var(--layout-content-max-width, 1200px);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.footerCopy {
+  font-family: var(--typography-body-small-font-family);
+  font-size: var(--typography-body-small-font-size);
+  color: var(--color-text-tertiary);
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.footerLink {
+  font-family: var(--typography-body-small-font-family);
+  font-size: var(--typography-body-small-font-size);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.footerLink:hover,
+.footerLink:focus-visible {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.footerSeparator {
+  color: var(--color-text-tertiary);
+  font-size: var(--typography-font-size-12);
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .docTitle {
+    font-size: var(--typography-font-size-26, 1.625rem);
+  }
+
+  .mainContainer {
+    padding: var(--spacing-6) var(--spacing-4) var(--spacing-12);
+  }
+
+  .footer {
+    flex-direction: column;
+    text-align: center;
+  }
+}

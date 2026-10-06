@@ -76,6 +76,23 @@ This journal tracks engineering decisions, architectural milestones, and impleme
 
 ---
 
+### Phase 6: Legal Foundation, Privacy Policy (NDPA 2023) & Terms of Service
+- **Footer Modernization**:
+  - Replaced the static footer disclaimer (*"Answers are grounded exclusively in approved gym records."*) with accessible, navigable links to `/privacy` and `/terms`.
+  - Added modern interactive styling (`.footerLinks`, `.footerLink`, `.footerSeparator`) consuming Aurora design tokens.
+- **Privacy Policy (`app/privacy/page.tsx`)**:
+  - Grounded directly in Spotter's PRD and architecture (single-device binding, 4-digit PIN cryptographic hashing, whiteboard 4-hour check-in window, Paystack tokenized payments, and tier-filtered grounded AI assistant).
+  - Explicitly referenced the **Nigeria Data Protection Act, 2023 (NDPA)** and the **Nigeria Data Protection Commission (NDPC)**.
+  - Specified principles under Section 24, lawful bases under Section 25, and member data subject rights under Section 34 (access, rectification, erasure, restriction, and complaint mechanisms).
+- **Terms of Service (`app/terms/page.tsx`)**:
+  - Outlined member rules, single-device policy, whiteboard check-in requirements, suppression windows, and Paystack renewal procedures.
+  - Formulated the strict safety refusal policy (no medical advice, no third-party member data, no financial commitments, WhatsApp desk fallback).
+  - Established jurisdiction under the laws of the **Federal Republic of Nigeria**.
+- **Route Gate & 404 Prevention**:
+  - Registered `/privacy` and `/terms` in `proxy.ts` under `PUBLIC_LEGAL_PATHS` to ensure both unauthenticated visitors and logged-in members can access legal documentation without redirection loops or 404 errors.
+
+---
+
 ## 💡 Key Architectural Decisions & Rationale
 
 1. **Why `proxy.ts` instead of complex database middleware?**
