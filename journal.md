@@ -93,6 +93,21 @@ This journal tracks engineering decisions, architectural milestones, and impleme
 
 ---
 
+### Phase 7: Transition Privacy & Terms from Pages to In-Page Conditional Views
+- **Removed Standalone Pages**:
+  - Removed `app/privacy/page.tsx` and `app/terms/page.tsx` routes so `/privacy` and `/terms` do not exist as independent web pages.
+- **In-Page Conditional Legal Views (`components/landing/legal-view.tsx`)**:
+  - Created a dedicated `LegalView` client island component that renders either the Privacy Policy or Terms of Service as an overlay view directly on the home page.
+  - Included a header with "← Back to Spotter", interactive document tabs to toggle between Privacy and Terms, the full NDPA 2023 Nigerian law content, Escape key listener, and scroll lock on `body`.
+- **Footer Legal Client Island (`components/landing/landing-client.tsx`)**:
+  - Introduced `FooterLegal` island on the marketing footer in `app/page.tsx`.
+  - Replaced router `<Link>` elements with `<button>` elements that maintain identical font size and styling to `.footerCopy` (`Private member access only.`).
+  - Implemented popstate and query-param sync (`/?view=privacy` / `/?view=terms`) so bookmarked or shared links automatically open the corresponding view on the home page.
+- **Proxy Middleware Routing Safeguard (`proxy.ts`)**:
+  - Configured `proxy.ts` to redirect incoming requests for legacy `/privacy` and `/terms` paths to `/?view=privacy` and `/?view=terms`, completely preventing 404 errors.
+
+---
+
 ## 💡 Key Architectural Decisions & Rationale
 
 1. **Why `proxy.ts` instead of complex database middleware?**
