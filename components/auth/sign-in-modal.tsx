@@ -15,6 +15,7 @@
 import { useEffect, useRef, useState, useActionState } from 'react'
 import Link from 'next/link'
 import { submitSignIn, type AuthFormState } from '@/app/auth/actions'
+import { CautionIcon } from './caution-icon'
 import styles from '@/app/landing.module.css'
 
 interface SignInModalProps {
@@ -182,14 +183,15 @@ function SignInForm() {
             if (!touched) setTouched(true)
           }}
           onBlur={() => setTouched(true)}
-          className={styles.modalInput}
+          className={`${styles.modalInput} ${isPinEmpty ? styles.modalInputError : ''}`}
           aria-describedby={isPinEmpty ? 'modal-pin-error' : 'pin-hint'}
           aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
           required
         />
         {isPinEmpty ? (
           <p id="modal-pin-error" className={styles.modalFieldError} role="alert">
-            This field must not be empty
+            <CautionIcon />
+            <span>This field must not be empty</span>
           </p>
         ) : (
           <span id="pin-hint" className={styles.modalFootnote} style={{ textAlign: 'left' }}>

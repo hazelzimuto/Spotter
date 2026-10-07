@@ -3,6 +3,7 @@
 import { useState, useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { submitPin, type ActivationCodeState } from '@/app/activate/actions'
+import { CautionIcon } from './caution-icon'
 import styles from './auth.module.css'
 
 function SubmitButton() {
@@ -51,7 +52,7 @@ export function PinForm() {
         <input
           id="pin"
           name="pin"
-          className={`${styles.input} ${styles.pinInput}`}
+          className={`${styles.input} ${styles.pinInput} ${isPinEmpty ? styles.inputError : ''}`}
           type="password"
           inputMode="numeric"
           autoComplete="new-password"
@@ -69,7 +70,8 @@ export function PinForm() {
         />
         {isPinEmpty ? (
           <p id="pin-error" className={styles.fieldError} role="alert">
-            This field must not be empty
+            <CautionIcon />
+            <span>This field must not be empty</span>
           </p>
         ) : (
           <p id="pin-help" className={styles.helper}>
@@ -85,7 +87,7 @@ export function PinForm() {
         <input
           id="confirmPin"
           name="confirmPin"
-          className={`${styles.input} ${styles.pinInput}`}
+          className={`${styles.input} ${styles.pinInput} ${isConfirmEmpty ? styles.inputError : ''}`}
           type="password"
           inputMode="numeric"
           autoComplete="new-password"
@@ -103,7 +105,8 @@ export function PinForm() {
         />
         {isConfirmEmpty && (
           <p id="confirmPin-error" className={styles.fieldError} role="alert">
-            This field must not be empty
+            <CautionIcon />
+            <span>This field must not be empty</span>
           </p>
         )}
       </div>

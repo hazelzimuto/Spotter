@@ -3,6 +3,7 @@
 import { useState, useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { submitActivationCode, type ActivationCodeState } from '@/app/activate/actions'
+import { CautionIcon } from './caution-icon'
 import styles from './auth.module.css'
 
 function SubmitButton() {
@@ -47,7 +48,7 @@ export function ActivationCodeForm() {
         <input
           id="activationCode"
           name="activationCode"
-          className={styles.input}
+          className={`${styles.input} ${isCodeEmpty ? styles.inputError : ''}`}
           type="text"
           inputMode="text"
           autoComplete="one-time-code"
@@ -66,7 +67,8 @@ export function ActivationCodeForm() {
         />
         {isCodeEmpty ? (
           <p id="activationCode-error" className={styles.fieldError} role="alert">
-            This field must not be empty
+            <CautionIcon />
+            <span>This field must not be empty</span>
           </p>
         ) : (
           <p id="activationCode-help" className={styles.helper}>

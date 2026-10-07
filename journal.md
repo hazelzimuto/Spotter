@@ -170,6 +170,15 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Added `phone String?` to `Member` in `prisma/schema.prisma` and regenerated Prisma Client.
   - Updated landing page sign-up calls to route directly to `/auth?view=signup`.
 
+### Phase 13: Error Outline & Caution Icon for Inline Validation
+- **Input Error Outline**:
+  - Configured inputs in `.field` and `.modalField` to outline with `--color-error` via `[aria-invalid='true']`, `.inputError`, and `.modalInputError`.
+  - Maintained `--border-width-medium` solid `--color-error` on `:focus` to clearly reflect invalid states instead of reverting to default focus styles.
+- **Caution Icon Beside Inline Messages**:
+  - Created reusable `CautionIcon` component (`components/auth/caution-icon.tsx`) rendering an accessible SVG warning triangle with rounded corners.
+  - Placed `<CautionIcon />` beside all inline *"This field must not be empty"* error messages across `UnifiedAuthCard`, `SignInModal`, `PinForm`, and `ActivationCodeForm`.
+  - Configured `currentColor` inheritance to consume `--color-error` automatically, with `aria-hidden="true"` so screen readers read only the descriptive error text.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

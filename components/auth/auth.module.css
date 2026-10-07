@@ -121,8 +121,17 @@
   box-shadow: 0 0 0 var(--state-focus-ring-width) var(--color-primary-container);
 }
 
-.input[aria-invalid='true'] {
+.input[aria-invalid='true'],
+.inputError {
   border-color: var(--color-error);
+  outline: var(--border-width-medium) solid var(--color-error);
+}
+
+.input[aria-invalid='true']:focus,
+.inputError:focus {
+  outline: var(--border-width-medium) solid var(--color-error);
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 var(--state-focus-ring-width) var(--color-error-container);
 }
 
 /* PIN uses a wide tracking so the digits read as separate cells */

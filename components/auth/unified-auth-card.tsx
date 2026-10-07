@@ -21,6 +21,7 @@ import {
   submitPin,
   type AuthFormState,
 } from '@/app/auth/actions'
+import { CautionIcon } from './caution-icon'
 import styles from './auth.module.css'
 
 export type AuthView = 'signin' | 'signup' | 'activate' | 'pin'
@@ -204,13 +205,14 @@ function SignInView({
             }}
             onBlur={() => setTouched(true)}
             required
-            className={`${styles.input} ${styles.pinInput}`}
+            className={`${styles.input} ${styles.pinInput} ${isPinEmpty ? styles.inputError : ''}`}
             aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
             aria-describedby={isPinEmpty ? 'signin-pin-error' : 'signin-pin-hint'}
           />
           {isPinEmpty ? (
             <p id="signin-pin-error" className={styles.fieldError} role="alert">
-              This field must not be empty
+              <CautionIcon />
+              <span>This field must not be empty</span>
             </p>
           ) : (
             <p id="signin-pin-hint" className={styles.helper}>
@@ -326,13 +328,14 @@ function SignUpView({
             }}
             onBlur={() => setNameTouched(true)}
             required
-            className={styles.input}
+            className={`${styles.input} ${isNameEmpty ? styles.inputError : ''}`}
             aria-invalid={isNameEmpty ? true : undefined}
             aria-describedby={isNameEmpty ? 'signup-name-error' : undefined}
           />
           {isNameEmpty && (
             <p id="signup-name-error" className={styles.fieldError} role="alert">
-              This field must not be empty
+              <CautionIcon />
+              <span>This field must not be empty</span>
             </p>
           )}
         </div>
@@ -354,13 +357,14 @@ function SignUpView({
             }}
             onBlur={() => setPhoneTouched(true)}
             required
-            className={styles.input}
+            className={`${styles.input} ${isPhoneEmpty ? styles.inputError : ''}`}
             aria-invalid={isPhoneEmpty ? true : undefined}
             aria-describedby={isPhoneEmpty ? 'signup-phone-error' : undefined}
           />
           {isPhoneEmpty && (
             <p id="signup-phone-error" className={styles.fieldError} role="alert">
-              This field must not be empty
+              <CautionIcon />
+              <span>This field must not be empty</span>
             </p>
           )}
         </div>
@@ -385,13 +389,14 @@ function SignUpView({
             }}
             onBlur={() => setPinTouched(true)}
             required
-            className={`${styles.input} ${styles.pinInput}`}
+            className={`${styles.input} ${styles.pinInput} ${isPinEmpty ? styles.inputError : ''}`}
             aria-invalid={isPinEmpty ? true : undefined}
             aria-describedby={isPinEmpty ? 'signup-pin-error' : 'signup-pin-help'}
           />
           {isPinEmpty ? (
             <p id="signup-pin-error" className={styles.fieldError} role="alert">
-              This field must not be empty
+              <CautionIcon />
+              <span>This field must not be empty</span>
             </p>
           ) : (
             <p id="signup-pin-help" className={styles.helper}>
@@ -420,13 +425,14 @@ function SignUpView({
             }}
             onBlur={() => setConfirmTouched(true)}
             required
-            className={`${styles.input} ${styles.pinInput}`}
+            className={`${styles.input} ${styles.pinInput} ${isConfirmEmpty ? styles.inputError : ''}`}
             aria-invalid={isConfirmEmpty ? true : undefined}
             aria-describedby={isConfirmEmpty ? 'signup-confirm-error' : undefined}
           />
           {isConfirmEmpty && (
             <p id="signup-confirm-error" className={styles.fieldError} role="alert">
-              This field must not be empty
+              <CautionIcon />
+              <span>This field must not be empty</span>
             </p>
           )}
         </div>
@@ -532,13 +538,14 @@ function ActivationCodeView({
             }}
             onBlur={() => setTouched(true)}
             required
-            className={styles.input}
+            className={`${styles.input} ${isCodeEmpty ? styles.inputError : ''}`}
             aria-invalid={isCodeEmpty ? true : state?.error ? true : undefined}
             aria-describedby={isCodeEmpty ? 'activation-code-error' : 'activation-code-help'}
           />
           {isCodeEmpty ? (
             <p id="activation-code-error" className={styles.fieldError} role="alert">
-              This field must not be empty
+              <CautionIcon />
+              <span>This field must not be empty</span>
             </p>
           ) : (
             <p id="activation-code-help" className={styles.helper}>
@@ -633,13 +640,14 @@ function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
             }}
             onBlur={() => setPinTouched(true)}
             required
-            className={`${styles.input} ${styles.pinInput}`}
+            className={`${styles.input} ${styles.pinInput} ${isPinEmpty ? styles.inputError : ''}`}
             aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
             aria-describedby={isPinEmpty ? 'setup-pin-error' : 'setup-pin-help'}
           />
           {isPinEmpty ? (
             <p id="setup-pin-error" className={styles.fieldError} role="alert">
-              This field must not be empty
+              <CautionIcon />
+              <span>This field must not be empty</span>
             </p>
           ) : (
             <p id="setup-pin-help" className={styles.helper}>
@@ -667,13 +675,14 @@ function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
             }}
             onBlur={() => setConfirmTouched(true)}
             required
-            className={`${styles.input} ${styles.pinInput}`}
+            className={`${styles.input} ${styles.pinInput} ${isConfirmEmpty ? styles.inputError : ''}`}
             aria-invalid={isConfirmEmpty ? true : undefined}
             aria-describedby={isConfirmEmpty ? 'confirm-pin-error' : undefined}
           />
           {isConfirmEmpty && (
             <p id="confirm-pin-error" className={styles.fieldError} role="alert">
-              This field must not be empty
+              <CautionIcon />
+              <span>This field must not be empty</span>
             </p>
           )}
         </div>
