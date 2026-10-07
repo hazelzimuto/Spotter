@@ -22,6 +22,7 @@ import {
   type AuthFormState,
 } from '@/app/auth/actions'
 import { CautionIcon } from './caution-icon'
+import { LegalView, type LegalViewType } from '@/components/landing/legal-view'
 import styles from './auth.module.css'
 
 export type AuthView = 'signin' | 'signup' | 'activate' | 'pin'
@@ -277,6 +278,8 @@ function SignUpView({
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [passwordBlurred, setPasswordBlurred] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [legalView, setLegalView] = useState<LegalViewType | null>(null)
 
   const [nameTouched, setNameTouched] = useState(false)
   const [emailTouched, setEmailTouched] = useState(false)
@@ -355,6 +358,7 @@ function SignUpView({
     isEmailValid &&
     isMemberNumberValid &&
     isPasswordValid &&
+    agreedToTerms &&
     !nameError &&
     !emailError &&
     !memberNumberError &&
@@ -561,6 +565,35 @@ function SignUpView({
           ) : null}
         </div>
 
+        <div className={styles.checkboxField}>
+          <input
+            id="signup-agree-terms"
+            name="agreeTerms"
+            type="checkbox"
+            value="true"
+            checked={agreedToTerms}
+            onChange={(e) => setAgreedToTerms(e.target.checked)}
+            className={styles.checkboxInput}
+            required
+            aria-required="true"
+          />
+          <label htmlFor="signup-agree-terms" className={styles.checkboxLabel}>
+            <span>I agree to the </span>
+            <button
+              type="button"
+              className={styles.termsLink}
+              onClick={(e) => {
+                e.stopPropagation()
+                setLegalView('terms')
+              }}
+              aria-haspopup="dialog"
+              aria-label="View Spotter Terms and Conditions"
+            >
+              Spotter Terms and Conditions
+            </button>
+          </label>
+        </div>
+
         <div className={styles.actions}>
           <SubmitButton
             label="Create Account"
@@ -593,6 +626,14 @@ function SignUpView({
           </button>
         </div>
       </form>
+
+      {legalView && (
+        <LegalView
+          activeView={legalView}
+          onSwitchView={(v) => setLegalView(v)}
+          onClose={() => setLegalView(null)}
+        />
+      )}
     </>
   )
 }

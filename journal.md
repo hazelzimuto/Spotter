@@ -251,6 +251,18 @@ This journal tracks engineering decisions, architectural milestones, and impleme
     - Zero active field errors (`!nameError && !emailError && !memberNumberError && !passwordError`).
   - Disabled the button by default until all criteria are met, utilizing `--state-disabled-opacity` and `cursor: not-allowed`.
 
+### Phase 21: Terms Consent Checkbox & Interactive Terms and Conditions Dialog
+- **Agree to Terms Consent Checkbox**:
+  - Inserted an accessible checkbox (`id="signup-agree-terms"`, `name="agreeTerms"`, `value="true"`) directly preceding the "Create Account" button in `SignUpView`.
+  - Styled with Aurora design system tokens (`accent-color: var(--color-primary)`, custom focus-visible ring, flex alignment).
+  - Wired into `isFormComplete` so the "Create Account" button remains disabled until the user explicitly checks the consent box.
+  - Mirrored consent validation in `submitSignUp` (`app/auth/actions.ts`) to enforce agreement on the server side as well.
+- **Interactive & Clickable Spotter Terms and Conditions**:
+  - Embedded an interactive button link for *"Spotter Terms and Conditions"* within the consent label.
+  - Uses `e.stopPropagation()` so clicking the terms link opens the full terms document without inadvertently toggling the checkbox.
+  - Dynamically renders the comprehensive, NDPA 2023-compliant `LegalView` modal dialog overlay (`activeView="terms"`) on top of the view.
+  - Preserves all entered sign-up inputs in state when the user closes the legal overlay and returns to the form.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

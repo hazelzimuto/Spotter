@@ -61,6 +61,11 @@ export async function submitSignUp(
     return { error: 'Password must be at least 6 characters.' }
   }
 
+  const agreeTerms = formData.get('agreeTerms')
+  if (!agreeTerms || agreeTerms === 'false') {
+    return { error: 'You must agree to the Terms and Conditions to create an account.' }
+  }
+
   const deviceId = await getOrCreateDeviceId()
   const passwordHash = await hashPin(password)
 
