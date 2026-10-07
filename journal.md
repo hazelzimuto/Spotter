@@ -282,6 +282,18 @@ This journal tracks engineering decisions, architectural milestones, and impleme
 - **Database Connection Error Resilience**:
   - Wrapped Prisma database writes in `app/auth/actions.ts` and `lib/auth/session.ts` with structured error handling so if a configured database is unreachable or offline, the application logs a warning and seamlessly falls back to the development store without blocking user sign-ups or breaking navigation to `/member`.
 
+### Phase 24: Modern Sign-In with Member Number & Password
+- **Swapped 4-Digit PIN for Member Number & Password**:
+  - Replaced the legacy 4-digit PIN input across both the dedicated auth card (`SignInView` in `components/auth/unified-auth-card.tsx`) and the landing page modal (`SignInForm` in `components/auth/sign-in-modal.tsx`).
+  - Added a 6-digit numeric **Member number** field with real-time numeric filtering, `maxLength={6}`, and `inputMode="numeric"`.
+  - Added a **Password** field complete with an accessible visibility view toggle button (eye/eye-off SVG icons with `aria-label` and `aria-hidden` attributes).
+- **Interactive Validation & Dynamic Disabling**:
+  - Integrated real-time blur and submit validation displaying inline error messages (*"This field must not be empty"*, *"Member number must be 6 numbers"*, *"Password must be at least 6 characters"*) accompanied by `<CautionIcon />` and input error outlines.
+  - Disabled the "Sign in" button until both Member number and Password are valid and error-free.
+- **Server Action & Authentication Updates**:
+  - Updated `submitSignIn` in `app/auth/actions.ts` to validate the 6-digit member number and password, check password hashes using `verifyPin`, and update device binding upon successful login.
+  - Added `findDevMemberByMemberNumber` to `lib/auth/dev-store.ts` for in-memory dev store authentication parity.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

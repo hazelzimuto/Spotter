@@ -68,7 +68,7 @@ export function SignInModal({ onClose, initialTab = 'signin' }: SignInModalProps
             </h2>
             <p className={styles.modalSubtext}>
               {activeTab === 'signin'
-                ? 'Enter your member PIN to access your records.'
+                ? 'Enter your member number and password to access your records.'
                 : 'Collect your activation code from the front desk to link this device.'}
             </p>
           </div>
@@ -125,19 +125,55 @@ export function SignInModal({ onClose, initialTab = 'signin' }: SignInModalProps
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Sign-in form — PIN entry
+   Sign-in form — Member number & Password
    ───────────────────────────────────────────────────────────── */
 function SignInForm() {
-  const [pin, setPin] = useState('')
-  const [touched, setTouched] = useState(false)
+  const [memberNumber, setMemberNumber] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [memberNumberTouched, setMemberNumberTouched] = useState(false)
+  const [passwordTouched, setPasswordTouched] = useState(false)
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignIn, {})
 
-  const isPinEmpty = touched && pin.trim() === ''
+  function getMemberNumberError(value: string, touched: boolean): string | null {
+    if (!touched) return null
+    const trimmed = value.trim()
+    if (trimmed === '') {
+      return 'This field must not be empty'
+    }
+    if (trimmed.length < 6) {
+      return 'Member number must be 6 numbers'
+    }
+    return null
+  }
+
+  function getPasswordError(value: string, touched: boolean): string | null {
+    if (!touched) return null
+    if (value.trim() === '') {
+      return 'This field must not be empty'
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters'
+    }
+    return null
+  }
+
+  const memberNumberError = getMemberNumberError(memberNumber, memberNumberTouched)
+  const isMemberNumberValid = memberNumber.trim().length === 6
+  const passwordError = getPasswordError(password, passwordTouched)
+  const isPasswordValid = password.length >= 6
+
+  const isFormComplete =
+    isMemberNumberValid &&
+    isPasswordValid &&
+    !memberNumberError &&
+    !passwordError
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (pin.trim() === '') {
+    if (!isFormComplete) {
       e.preventDefault()
-      setTouched(true)
+      setMemberNumberTouched(true)
+      setPasswordTouched(true)
     }
   }
 
@@ -166,44 +202,111 @@ function SignInForm() {
       )}
 
       <div className={styles.modalField}>
-        <label htmlFor="pin-input" className={styles.modalLabel}>
-          Your 4-digit PIN
+        <label htmlFor="modal-member-number" className={styles.modalLabel}>
+          Member number
         </label>
         <input
-          id="pin-input"
-          name="pin"
-          type="password"
+          id="modal-member-number"
+          name="memberNumber"
+          type="text"
           inputMode="numeric"
-          maxLength={4}
-          autoComplete="current-password"
-          placeholder="••••"
-          value={pin}
+          maxLength={6}
+          placeholder="e.g. 123456"
+          value={memberNumber}
           onChange={(e) => {
-            setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
-            if (!touched) setTouched(true)
+            const numbersOnly = e.target.value.replace(/\D/g, '').slice(0, 6)
+            setMemberNumber(numbersOnly)
+            if (!memberNumberTouched) setMemberNumberTouched(true)
           }}
-          onBlur={() => setTouched(true)}
-          className={`${styles.modalInput} ${isPinEmpty ? styles.modalInputError : ''}`}
-          aria-describedby={isPinEmpty ? 'modal-pin-error' : 'pin-hint'}
-          aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
+          onBlur={() => setMemberNumberTouched(true)}
+          className={`${styles.modalInput} ${memberNumberError ? styles.modalInputError : ''}`}
+          aria-describedby={memberNumberError ? 'modal-member-number-error' : undefined}
+          aria-invalid={memberNumberError ? true : undefined}
           required
         />
-        {isPinEmpty ? (
-          <p id="modal-pin-error" className={styles.modalFieldError} role="alert">
+        {memberNumberError && (
+          <p id="modal-member-number-error" className={styles.modalFieldError} role="alert">
             <CautionIcon />
-            <span>This field must not be empty</span>
+            <span>{memberNumberError}</span>
           </p>
-        ) : (
-          <span id="pin-hint" className={styles.modalFootnote} style={{ textAlign: 'left' }}>
-            Set during your first device activation.
-          </span>
+        )}
+      </div>
+
+      <div className={styles.modalField}>
+        <label htmlFor="modal-password" className={styles.modalLabel}>
+          Password
+        </label>
+        <div className={styles.passwordWrapper}>
+          <input
+            id="modal-password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value)
+            }}
+            onBlur={() => setPasswordTouched(true)}
+            className={`${styles.modalInput} ${styles.passwordInput} ${passwordError ? styles.modalInputError : ''}`}
+            aria-describedby={passwordError ? 'modal-password-error' : undefined}
+            aria-invalid={passwordError ? true : undefined}
+            required
+          />
+          <button
+            type="button"
+            className={styles.passwordToggle}
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            title={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                <line x1="2" y1="2" x2="22" y2="22" />
+              </svg>
+            ) : (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            )}
+          </button>
+        </div>
+        {passwordError && (
+          <p id="modal-password-error" className={styles.modalFieldError} role="alert">
+            <CautionIcon />
+            <span>{passwordError}</span>
+          </p>
         )}
       </div>
 
       <button
         id="sign-in-submit"
         type="submit"
-        disabled={pin.length < 4}
+        disabled={!isFormComplete}
         className={styles.modalPrimaryBtn}
       >
         Sign in

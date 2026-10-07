@@ -6,6 +6,7 @@ import {
   saveDevMember,
   findDevMemberByDeviceId,
   findDevMemberByActivationCode,
+  findDevMemberByMemberNumber,
   updateDevMemberPin,
 } from '@/lib/auth/dev-store'
 import { hashPin, verifyPin } from '@/lib/auth/pin'
@@ -122,28 +123,53 @@ export async function submitSignUp(
 }
 
 /**
- * Sign-in action: Authenticates a member on an already linked device using their 4-digit PIN.
+ * Sign-in action: Authenticates a member using their 6-digit Member number and Password.
  */
 export async function submitSignIn(
   _prev: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const { pin, error } = validatePin(formData.get('pin'))
-  if (error) return { error }
+  const memberNumber = formData.get('memberNumber')?.toString()?.trim() || ''
+  if (!memberNumber) {
+    return { error: 'This field must not be empty' }
+  }
+  if (!/^\d{6}$/.test(memberNumber)) {
+    return { error: 'Member number must be exactly 6 numbers.' }
+  }
+
+  const password = formData.get('password')?.toString() || ''
+  if (!password) {
+    return { error: 'This field must not be empty' }
+  }
+  if (password.length < 6) {
+    return { error: 'Password must be at least 6 characters.' }
+  }
 
   const deviceId = await getOrCreateDeviceId()
 
   if (hasDatabaseUrl) {
     try {
       const member = await db.member.findFirst({
-        where: { deviceId },
-        select: { id: true, pinHash: true, deviceId: true },
+        where: { memberNumber },
+        select: { id: true, passwordHash: true, pinHash: true, deviceId: true },
       })
 
-      if (member?.pinHash) {
-        const matches = await verifyPin(pin, member.pinHash)
+      if (member) {
+        const hash = member.passwordHash || member.pinHash
+        if (!hash) {
+          return { error: 'Invalid member number or password.' }
+        }
+
+        const matches = await verifyPin(password, hash)
         if (!matches) {
-          return { error: 'Incorrect PIN. Please try again.' }
+          return { error: 'Invalid member number or password.' }
+        }
+
+        if (member.deviceId !== deviceId) {
+          await db.member.update({
+            where: { id: member.id },
+            data: { deviceId },
+          })
         }
 
         await createSession(member.id, deviceId)
@@ -154,19 +180,23 @@ export async function submitSignIn(
     }
   }
 
-  const member = findDevMemberByDeviceId(deviceId)
-  if (!member || !member.pinHash) {
-    return {
-      error:
-        'This device has not been linked to a membership yet. Please create an account to get started.',
-    }
+  const member =
+    findDevMemberByMemberNumber(memberNumber) || findDevMemberByDeviceId(deviceId)
+  if (!member) {
+    return { error: 'Invalid member number or password.' }
   }
 
-  const matches = await verifyPin(pin, member.pinHash)
+  const hash = member.passwordHash || member.pinHash
+  if (!hash) {
+    return { error: 'Invalid member number or password.' }
+  }
+
+  const matches = await verifyPin(password, hash)
   if (!matches) {
-    return { error: 'Incorrect PIN. Please try again.' }
+    return { error: 'Invalid member number or password.' }
   }
 
+  member.deviceId = deviceId
   await createSession(member.id, deviceId)
   redirect('/member')
 }

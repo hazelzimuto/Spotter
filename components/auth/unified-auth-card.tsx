@@ -157,7 +157,7 @@ export function UnifiedAuthCard({ initialView = 'signin' }: UnifiedAuthCardProps
 }
 
 /* ─────────────────────────────────────────────────────────────
-   VIEW 1: Sign-In with 4-digit PIN
+   VIEW 1: Sign-In with Member Number & Password
    ───────────────────────────────────────────────────────────── */
 function SignInView({
   onSwitchToSignUp,
@@ -166,16 +166,52 @@ function SignInView({
   onSwitchToSignUp: () => void
   onSwitchToActivate: () => void
 }) {
-  const [pin, setPin] = useState('')
-  const [touched, setTouched] = useState(false)
+  const [memberNumber, setMemberNumber] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [memberNumberTouched, setMemberNumberTouched] = useState(false)
+  const [passwordTouched, setPasswordTouched] = useState(false)
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignIn, {})
 
-  const isPinEmpty = touched && pin.trim() === ''
+  function getMemberNumberError(value: string, touched: boolean): string | null {
+    if (!touched) return null
+    const trimmed = value.trim()
+    if (trimmed === '') {
+      return 'This field must not be empty'
+    }
+    if (trimmed.length < 6) {
+      return 'Member number must be 6 numbers'
+    }
+    return null
+  }
+
+  function getPasswordError(value: string, touched: boolean): string | null {
+    if (!touched) return null
+    if (value.trim() === '') {
+      return 'This field must not be empty'
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters'
+    }
+    return null
+  }
+
+  const memberNumberError = getMemberNumberError(memberNumber, memberNumberTouched)
+  const isMemberNumberValid = memberNumber.trim().length === 6
+  const passwordError = getPasswordError(password, passwordTouched)
+  const isPasswordValid = password.length >= 6
+
+  const isFormComplete =
+    isMemberNumberValid &&
+    isPasswordValid &&
+    !memberNumberError &&
+    !passwordError
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (pin.trim() === '') {
+    if (!isFormComplete) {
       e.preventDefault()
-      setTouched(true)
+      setMemberNumberTouched(true)
+      setPasswordTouched(true)
     }
   }
 
@@ -184,7 +220,7 @@ function SignInView({
       <div className={styles.header}>
         <h1 className={styles.heading}>Welcome back</h1>
         <p className={styles.subtext}>
-          Enter your 4-digit PIN for this device to access your member records.
+          Enter your 6-digit member number and password to access your member records.
         </p>
       </div>
 
@@ -196,42 +232,109 @@ function SignInView({
         )}
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="signin-pin">
-            4-digit PIN
+          <label className={styles.label} htmlFor="signin-member-number">
+            Member number
           </label>
           <input
-            id="signin-pin"
-            name="pin"
-            type="password"
+            id="signin-member-number"
+            name="memberNumber"
+            type="text"
             inputMode="numeric"
-            autoComplete="current-password"
-            maxLength={4}
-            placeholder="••••"
-            value={pin}
+            maxLength={6}
+            placeholder="e.g. 123456"
+            value={memberNumber}
             onChange={(e) => {
-              setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
-              if (!touched) setTouched(true)
+              const numbersOnly = e.target.value.replace(/\D/g, '').slice(0, 6)
+              setMemberNumber(numbersOnly)
+              if (!memberNumberTouched) setMemberNumberTouched(true)
             }}
-            onBlur={() => setTouched(true)}
+            onBlur={() => setMemberNumberTouched(true)}
             required
-            className={`${styles.input} ${styles.pinInput} ${isPinEmpty ? styles.inputError : ''}`}
-            aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
-            aria-describedby={isPinEmpty ? 'signin-pin-error' : 'signin-pin-hint'}
+            className={`${styles.input} ${memberNumberError ? styles.inputError : ''}`}
+            aria-invalid={memberNumberError ? true : undefined}
+            aria-describedby={memberNumberError ? 'signin-member-number-error' : undefined}
           />
-          {isPinEmpty ? (
-            <p id="signin-pin-error" className={styles.fieldError} role="alert">
+          {memberNumberError && (
+            <p id="signin-member-number-error" className={styles.fieldError} role="alert">
               <CautionIcon />
-              <span>This field must not be empty</span>
+              <span>{memberNumberError}</span>
             </p>
-          ) : (
-            <p id="signin-pin-hint" className={styles.helper}>
-              Configured during your first device setup.
+          )}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="signin-password">
+            Password
+          </label>
+          <div className={styles.passwordWrapper}>
+            <input
+              id="signin-password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+              }}
+              onBlur={() => setPasswordTouched(true)}
+              required
+              className={`${styles.input} ${styles.passwordInput} ${passwordError ? styles.inputError : ''}`}
+              aria-invalid={passwordError ? true : undefined}
+              aria-describedby={passwordError ? 'signin-password-error' : undefined}
+            />
+            <button
+              type="button"
+              className={styles.passwordToggle}
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              title={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                  <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                  <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                  <line x1="2" y1="2" x2="22" y2="22" />
+                </svg>
+              ) : (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          </div>
+          {passwordError && (
+            <p id="signin-password-error" className={styles.fieldError} role="alert">
+              <CautionIcon />
+              <span>{passwordError}</span>
             </p>
           )}
         </div>
 
         <div className={styles.actions}>
-          <SubmitButton label="Sign in" pendingLabel="Verifying…" />
+          <SubmitButton label="Sign in" pendingLabel="Signing in…" disabled={!isFormComplete} />
         </div>
 
         <div className={styles.switchPrompt}>

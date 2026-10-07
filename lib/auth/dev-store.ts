@@ -95,6 +95,15 @@ export function findDevMemberByActivationCode(code: string): DevMember | null {
   return null
 }
 
+export function findDevMemberByMemberNumber(memberNumber: string): DevMember | null {
+  for (const m of membersMap.values()) {
+    if (m.memberNumber === memberNumber) {
+      return m
+    }
+  }
+  return null
+}
+
 export function updateDevMemberPin(id: string, pinHash: string, deviceId: string): boolean {
   const member = membersMap.get(id)
   if (!member) return false
