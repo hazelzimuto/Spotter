@@ -233,6 +233,11 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Dynamically renders as inline text under the password field the moment the user types their first character (`password.length > 0`).
   - If the user leaves the field without meeting requirements, transitions cleanly into the appropriate inline error message (*"This field must not be empty"* or *"Password must be at least 6 characters"*) with `<CautionIcon />` and error outline.
 
+### Phase 19: Removal of Member Number Field Hint
+- **Cleaned Field Layout**:
+  - Removed the static helper hint text (*"6-digit member number from the gym."*) beneath the Member number field in `SignUpView`.
+  - The space below the input now remains clean unless an inline validation error is triggered.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

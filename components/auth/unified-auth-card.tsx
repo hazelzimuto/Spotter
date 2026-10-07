@@ -457,20 +457,12 @@ function SignUpView({
             required
             className={`${styles.input} ${memberNumberError ? styles.inputError : ''}`}
             aria-invalid={memberNumberError ? true : undefined}
-            aria-describedby={
-              memberNumberError
-                ? 'signup-member-number-error'
-                : 'signup-member-number-help'
-            }
+            aria-describedby={memberNumberError ? 'signup-member-number-error' : undefined}
           />
-          {memberNumberError ? (
+          {memberNumberError && (
             <p id="signup-member-number-error" className={styles.fieldError} role="alert">
               <CautionIcon />
               <span>{memberNumberError}</span>
-            </p>
-          ) : (
-            <p id="signup-member-number-help" className={styles.helper}>
-              6-digit member number from the gym.
             </p>
           )}
         </div>
