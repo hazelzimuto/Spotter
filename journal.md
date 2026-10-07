@@ -238,6 +238,19 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Removed the static helper hint text (*"6-digit member number from the gym."*) beneath the Member number field in `SignUpView`.
   - The space below the input now remains clean unless an inline validation error is triggered.
 
+### Phase 20: Create Account Button Renaming & Conditional Disabling
+- **Button Label Rename**:
+  - Renamed the submit button in `SignUpView` from *"Create account & enter"* to *"Create Account"*.
+- **Conditional Disabled State**:
+  - Added `disabled?: boolean` support to the shared `SubmitButton` component.
+  - Computed `isFormComplete` requiring all fields to be valid and error-free:
+    - Full Name: >= 2 chars and >= 2 names separated by space.
+    - Email: valid RFC-compliant format.
+    - Member Number: exactly 6 numeric digits.
+    - Password: >= 6 characters.
+    - Zero active field errors (`!nameError && !emailError && !memberNumberError && !passwordError`).
+  - Disabled the button by default until all criteria are met, utilizing `--state-disabled-opacity` and `cursor: not-allowed`.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

@@ -30,10 +30,18 @@ interface UnifiedAuthCardProps {
   initialView?: AuthView
 }
 
-function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
+function SubmitButton({
+  label,
+  pendingLabel,
+  disabled = false,
+}: {
+  label: string
+  pendingLabel: string
+  disabled?: boolean
+}) {
   const { pending } = useFormStatus()
   return (
-    <button type="submit" className={styles.primaryButton} disabled={pending}>
+    <button type="submit" className={styles.primaryButton} disabled={pending || disabled}>
       {pending ? pendingLabel : label}
     </button>
   )
@@ -342,13 +350,18 @@ function SignUpView({
   const isPasswordValid = password.length >= 6
   const showPasswordHint = password.length > 0 && !passwordError
 
+  const isFormComplete =
+    isNameValid &&
+    isEmailValid &&
+    isMemberNumberValid &&
+    isPasswordValid &&
+    !nameError &&
+    !emailError &&
+    !memberNumberError &&
+    !passwordError
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (
-      !isNameValid ||
-      !isEmailValid ||
-      !isMemberNumberValid ||
-      !isPasswordValid
-    ) {
+    if (!isFormComplete) {
       e.preventDefault()
       setNameTouched(true)
       setEmailTouched(true)
@@ -549,7 +562,11 @@ function SignUpView({
         </div>
 
         <div className={styles.actions}>
-          <SubmitButton label="Create account & enter" pendingLabel="Creating account…" />
+          <SubmitButton
+            label="Create Account"
+            pendingLabel="Creating account…"
+            disabled={!isFormComplete}
+          />
         </div>
 
         <div className={styles.switchPrompt}>
