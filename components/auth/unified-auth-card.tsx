@@ -264,11 +264,13 @@ function SignUpView({
   onSwitchToActivate: () => void
 }) {
   const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [pin, setPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
 
   const [nameTouched, setNameTouched] = useState(false)
+  const [emailTouched, setEmailTouched] = useState(false)
   const [phoneTouched, setPhoneTouched] = useState(false)
   const [pinTouched, setPinTouched] = useState(false)
   const [confirmTouched, setConfirmTouched] = useState(false)
@@ -291,8 +293,27 @@ function SignUpView({
     return null
   }
 
+  function getEmailError(value: string, touched: boolean): string | null {
+    const trimmed = value.trim()
+    // Real-time format validation triggers the moment typing begins
+    if (trimmed.length > 0) {
+      const isValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)
+      if (!isValidFormat) {
+        return 'Enter a valid email address'
+      }
+      return null
+    }
+    // If touched and left empty
+    if (touched && trimmed === '') {
+      return 'This field must not be empty'
+    }
+    return null
+  }
+
   const nameError = getFullNameError(fullName, nameTouched)
   const isNameValid = getFullNameError(fullName, true) === null
+  const emailError = getEmailError(email, emailTouched)
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
   const isPhoneEmpty = phoneTouched && phone.trim() === ''
   const isPinEmpty = pinTouched && pin.trim() === ''
   const isConfirmEmpty = confirmTouched && confirmPin.trim() === ''
@@ -300,12 +321,14 @@ function SignUpView({
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (
       !isNameValid ||
+      !isEmailValid ||
       phone.trim() === '' ||
       pin.trim() === '' ||
       confirmPin.trim() === ''
     ) {
       e.preventDefault()
       setNameTouched(true)
+      setEmailTouched(true)
       if (phone.trim() === '') setPhoneTouched(true)
       if (pin.trim() === '') setPinTouched(true)
       if (confirmPin.trim() === '') setConfirmTouched(true)
@@ -358,6 +381,35 @@ function SignUpView({
           ) : (
             <p id="signup-name-help" className={styles.helper}>
               At least 2 names separated with a space.
+            </p>
+          )}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="signup-email">
+            Email address
+          </label>
+          <input
+            id="signup-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="e.g. alex@example.com"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              if (!emailTouched) setEmailTouched(true)
+            }}
+            onBlur={() => setEmailTouched(true)}
+            required
+            className={`${styles.input} ${emailError ? styles.inputError : ''}`}
+            aria-invalid={emailError ? true : undefined}
+            aria-describedby={emailError ? 'signup-email-error' : undefined}
+          />
+          {emailError && (
+            <p id="signup-email-error" className={styles.fieldError} role="alert">
+              <CautionIcon />
+              <span>{emailError}</span>
             </p>
           )}
         </div>

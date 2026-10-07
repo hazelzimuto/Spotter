@@ -191,6 +191,16 @@ This journal tracks engineering decisions, architectural milestones, and impleme
 - **Server Action Validation**:
   - Mirrored length and multi-word checks in `submitSignUp` (`app/auth/actions.ts`) to ensure secure server-side enforcement.
 
+### Phase 15: Email Address Field & Real-Time Format Validation
+- **Schema & Persistence**:
+  - Added optional `email String?` field to `Member` in `prisma/schema.prisma` and generated Prisma Client types.
+  - Stored email on `Member` creation in `submitSignUp` server action.
+- **Real-Time Dynamic Validation**:
+  - As soon as the user starts typing (`trimmed.length > 0`), real-time regex format validation checks whether the input forms a valid email (`^[^\s@]+@[^\s@]+\.[^\s@]{2,}$`).
+  - Displays inline error *"Enter a valid email address"* with `<CautionIcon />` and error color outline while format is invalid.
+  - Instantly disappears the moment a valid email format is entered.
+  - Displays *"This field must not be empty"* if focused and left blank.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

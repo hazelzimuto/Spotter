@@ -41,6 +41,15 @@ export async function submitSignUp(
     return { error: 'This field must not be empty' }
   }
 
+  const email = formData.get('email')?.toString()?.trim() || ''
+  if (!email) {
+    return { error: 'This field must not be empty' }
+  }
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
+  if (!isEmailValid) {
+    return { error: 'Enter a valid email address' }
+  }
+
   const { pin, error: pinError } = validatePin(formData.get('pin'))
   if (pinError) return { error: pinError }
 
@@ -60,6 +69,7 @@ export async function submitSignUp(
     data: {
       fullName,
       phone,
+      email,
       pinHash,
       deviceId,
       tier: 'BASIC',
