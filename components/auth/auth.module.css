@@ -140,6 +140,43 @@
   font-weight: var(--typography-font-weight-medium);
 }
 
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.passwordInput {
+  padding-right: var(--spacing-10);
+}
+
+.passwordToggle {
+  position: absolute;
+  right: var(--spacing-3);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: var(--spacing-1);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  transition: color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.passwordToggle:hover {
+  color: var(--color-on-surface);
+}
+
+.passwordToggle:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 /* ---- Error ---- */
 
 .error {

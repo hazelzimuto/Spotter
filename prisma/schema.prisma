@@ -54,6 +54,7 @@ model Member {
   // (.agent/rules/schema.md rule 2)
   activationCode String? @unique
   pinHash        String?
+  passwordHash   String?
   deviceId       String?
 
   createdAt DateTime @default(now())

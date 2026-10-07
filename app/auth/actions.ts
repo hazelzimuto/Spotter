@@ -53,16 +53,16 @@ export async function submitSignUp(
     return { error: 'Member number must be exactly 6 numbers.' }
   }
 
-  const { pin, error: pinError } = validatePin(formData.get('pin'))
-  if (pinError) return { error: pinError }
-
-  const confirmPin = formData.get('confirmPin')
-  if (confirmPin !== pin) {
-    return { error: 'The two PINs do not match.' }
+  const password = formData.get('password')?.toString() || ''
+  if (!password) {
+    return { error: 'This field must not be empty' }
+  }
+  if (password.length < 6) {
+    return { error: 'Password must be at least 6 characters.' }
   }
 
   const deviceId = await getOrCreateDeviceId()
-  const pinHash = await hashPin(pin)
+  const passwordHash = await hashPin(password)
 
   // Initial 30-day membership access window
   const expiryDate = new Date()
@@ -73,7 +73,8 @@ export async function submitSignUp(
       fullName,
       email,
       memberNumber,
-      pinHash,
+      passwordHash,
+      pinHash: passwordHash,
       deviceId,
       tier: 'BASIC',
       openingBalance: 0,

@@ -212,6 +212,20 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Displays *"This field must not be empty"* if left blank.
   - Mirrored exact 6-digit check (`/^\d{6}$/`) in `submitSignUp` (`app/auth/actions.ts`).
 
+### Phase 17: Password Field with Show/Hide View Toggle
+- **Swapped PIN for Password & Removed Confirmation Field**:
+  - Replaced the 4-digit PIN setup in `SignUpView` with a flexible Password field (`name="password"`).
+  - Completely eliminated the Confirm Password input to streamline the onboarding experience.
+  - Added `passwordHash String?` to `Member` in `prisma/schema.prisma` and regenerated Prisma Client.
+- **Inline Visibility Toggle**:
+  - Added an interactive eye / eye-off toggle button (`showPassword` state) positioned inside the password input field.
+  - Toggles the input type between `"password"` and `"text"` so members can see their password as they type or inspect it afterwards.
+  - Fully accessible with dynamic `aria-label` (`"Show password"` / `"Hide password"`).
+- **Validation**:
+  - Enforced a minimum password length of 6 characters (`password.length >= 6`).
+  - Displays *"Password must be at least 6 characters"* and *"This field must not be empty"* with `<CautionIcon />` and error outline when invalid.
+  - Securely hashed with bcrypt and persisted in `submitSignUp`.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

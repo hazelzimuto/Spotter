@@ -266,14 +266,13 @@ function SignUpView({
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [memberNumber, setMemberNumber] = useState('')
-  const [pin, setPin] = useState('')
-  const [confirmPin, setConfirmPin] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   const [nameTouched, setNameTouched] = useState(false)
   const [emailTouched, setEmailTouched] = useState(false)
   const [memberNumberTouched, setMemberNumberTouched] = useState(false)
-  const [pinTouched, setPinTouched] = useState(false)
-  const [confirmTouched, setConfirmTouched] = useState(false)
+  const [passwordTouched, setPasswordTouched] = useState(false)
 
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignUp, {})
 
@@ -322,29 +321,38 @@ function SignUpView({
     return null
   }
 
+  function getPasswordError(value: string, touched: boolean): string | null {
+    if (!touched) return null
+    if (value.trim() === '') {
+      return 'This field must not be empty'
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters'
+    }
+    return null
+  }
+
   const nameError = getFullNameError(fullName, nameTouched)
   const isNameValid = getFullNameError(fullName, true) === null
   const emailError = getEmailError(email, emailTouched)
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
   const memberNumberError = getMemberNumberError(memberNumber, memberNumberTouched)
   const isMemberNumberValid = memberNumber.trim().length === 6
-  const isPinEmpty = pinTouched && pin.trim() === ''
-  const isConfirmEmpty = confirmTouched && confirmPin.trim() === ''
+  const passwordError = getPasswordError(password, passwordTouched)
+  const isPasswordValid = password.length >= 6
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (
       !isNameValid ||
       !isEmailValid ||
       !isMemberNumberValid ||
-      pin.trim() === '' ||
-      confirmPin.trim() === ''
+      !isPasswordValid
     ) {
       e.preventDefault()
       setNameTouched(true)
       setEmailTouched(true)
       setMemberNumberTouched(true)
-      if (pin.trim() === '') setPinTouched(true)
-      if (confirmPin.trim() === '') setConfirmTouched(true)
+      setPasswordTouched(true)
     }
   }
 
@@ -467,69 +475,79 @@ function SignUpView({
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="signup-pin">
-            Create a 4-digit PIN
+          <label className={styles.label} htmlFor="signup-password">
+            Password
           </label>
-          <input
-            id="signup-pin"
-            name="pin"
-            type="password"
-            inputMode="numeric"
-            autoComplete="new-password"
-            maxLength={4}
-            pattern="[0-9]{4}"
-            placeholder="••••"
-            value={pin}
-            onChange={(e) => {
-              setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
-              if (!pinTouched) setPinTouched(true)
-            }}
-            onBlur={() => setPinTouched(true)}
-            required
-            className={`${styles.input} ${styles.pinInput} ${isPinEmpty ? styles.inputError : ''}`}
-            aria-invalid={isPinEmpty ? true : undefined}
-            aria-describedby={isPinEmpty ? 'signup-pin-error' : 'signup-pin-help'}
-          />
-          {isPinEmpty ? (
-            <p id="signup-pin-error" className={styles.fieldError} role="alert">
+          <div className={styles.passwordWrapper}>
+            <input
+              id="signup-password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                if (!passwordTouched) setPasswordTouched(true)
+              }}
+              onBlur={() => setPasswordTouched(true)}
+              required
+              className={`${styles.input} ${styles.passwordInput} ${passwordError ? styles.inputError : ''}`}
+              aria-invalid={passwordError ? true : undefined}
+              aria-describedby={
+                passwordError ? 'signup-password-error' : 'signup-password-help'
+              }
+            />
+            <button
+              type="button"
+              className={styles.passwordToggle}
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              title={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                  <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                  <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                  <line x1="2" y1="2" x2="22" y2="22" />
+                </svg>
+              ) : (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          </div>
+          {passwordError ? (
+            <p id="signup-password-error" className={styles.fieldError} role="alert">
               <CautionIcon />
-              <span>This field must not be empty</span>
+              <span>{passwordError}</span>
             </p>
           ) : (
-            <p id="signup-pin-help" className={styles.helper}>
-              Used to sign in on this device.
-            </p>
-          )}
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="signup-confirm-pin">
-            Confirm PIN
-          </label>
-          <input
-            id="signup-confirm-pin"
-            name="confirmPin"
-            type="password"
-            inputMode="numeric"
-            autoComplete="new-password"
-            maxLength={4}
-            pattern="[0-9]{4}"
-            placeholder="••••"
-            value={confirmPin}
-            onChange={(e) => {
-              setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))
-              if (!confirmTouched) setConfirmTouched(true)
-            }}
-            onBlur={() => setConfirmTouched(true)}
-            required
-            className={`${styles.input} ${styles.pinInput} ${isConfirmEmpty ? styles.inputError : ''}`}
-            aria-invalid={isConfirmEmpty ? true : undefined}
-            aria-describedby={isConfirmEmpty ? 'signup-confirm-error' : undefined}
-          />
-          {isConfirmEmpty && (
-            <p id="signup-confirm-error" className={styles.fieldError} role="alert">
-              <CautionIcon />
-              <span>This field must not be empty</span>
+            <p id="signup-password-help" className={styles.helper}>
+              Must be at least 6 characters.
             </p>
           )}
         </div>
