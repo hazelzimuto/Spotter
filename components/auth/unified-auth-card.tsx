@@ -265,13 +265,13 @@ function SignUpView({
 }) {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  const [memberNumber, setMemberNumber] = useState('')
   const [pin, setPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
 
   const [nameTouched, setNameTouched] = useState(false)
   const [emailTouched, setEmailTouched] = useState(false)
-  const [phoneTouched, setPhoneTouched] = useState(false)
+  const [memberNumberTouched, setMemberNumberTouched] = useState(false)
   const [pinTouched, setPinTouched] = useState(false)
   const [confirmTouched, setConfirmTouched] = useState(false)
 
@@ -310,11 +310,24 @@ function SignUpView({
     return null
   }
 
+  function getMemberNumberError(value: string, touched: boolean): string | null {
+    if (!touched) return null
+    const trimmed = value.trim()
+    if (trimmed === '') {
+      return 'This field must not be empty'
+    }
+    if (trimmed.length < 6) {
+      return 'Member number must be 6 numbers'
+    }
+    return null
+  }
+
   const nameError = getFullNameError(fullName, nameTouched)
   const isNameValid = getFullNameError(fullName, true) === null
   const emailError = getEmailError(email, emailTouched)
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
-  const isPhoneEmpty = phoneTouched && phone.trim() === ''
+  const memberNumberError = getMemberNumberError(memberNumber, memberNumberTouched)
+  const isMemberNumberValid = memberNumber.trim().length === 6
   const isPinEmpty = pinTouched && pin.trim() === ''
   const isConfirmEmpty = confirmTouched && confirmPin.trim() === ''
 
@@ -322,14 +335,14 @@ function SignUpView({
     if (
       !isNameValid ||
       !isEmailValid ||
-      phone.trim() === '' ||
+      !isMemberNumberValid ||
       pin.trim() === '' ||
       confirmPin.trim() === ''
     ) {
       e.preventDefault()
       setNameTouched(true)
       setEmailTouched(true)
-      if (phone.trim() === '') setPhoneTouched(true)
+      setMemberNumberTouched(true)
       if (pin.trim() === '') setPinTouched(true)
       if (confirmPin.trim() === '') setConfirmTouched(true)
     }
@@ -415,30 +428,40 @@ function SignUpView({
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="signup-phone">
-            Phone number
+          <label className={styles.label} htmlFor="signup-member-number">
+            Member number
           </label>
           <input
-            id="signup-phone"
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            placeholder="080... or +234..."
-            value={phone}
+            id="signup-member-number"
+            name="memberNumber"
+            type="text"
+            inputMode="numeric"
+            maxLength={6}
+            placeholder="e.g. 123456"
+            value={memberNumber}
             onChange={(e) => {
-              setPhone(e.target.value)
-              if (!phoneTouched) setPhoneTouched(true)
+              const numbersOnly = e.target.value.replace(/\D/g, '').slice(0, 6)
+              setMemberNumber(numbersOnly)
+              if (!memberNumberTouched) setMemberNumberTouched(true)
             }}
-            onBlur={() => setPhoneTouched(true)}
+            onBlur={() => setMemberNumberTouched(true)}
             required
-            className={`${styles.input} ${isPhoneEmpty ? styles.inputError : ''}`}
-            aria-invalid={isPhoneEmpty ? true : undefined}
-            aria-describedby={isPhoneEmpty ? 'signup-phone-error' : undefined}
+            className={`${styles.input} ${memberNumberError ? styles.inputError : ''}`}
+            aria-invalid={memberNumberError ? true : undefined}
+            aria-describedby={
+              memberNumberError
+                ? 'signup-member-number-error'
+                : 'signup-member-number-help'
+            }
           />
-          {isPhoneEmpty && (
-            <p id="signup-phone-error" className={styles.fieldError} role="alert">
+          {memberNumberError ? (
+            <p id="signup-member-number-error" className={styles.fieldError} role="alert">
               <CautionIcon />
-              <span>This field must not be empty</span>
+              <span>{memberNumberError}</span>
+            </p>
+          ) : (
+            <p id="signup-member-number-help" className={styles.helper}>
+              6-digit member number from the gym.
             </p>
           )}
         </div>

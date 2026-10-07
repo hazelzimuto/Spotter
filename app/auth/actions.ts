@@ -36,11 +36,6 @@ export async function submitSignUp(
     return { error: 'Please enter at least 2 names separated with a space.' }
   }
 
-  const phone = formData.get('phone')?.toString()?.trim() || ''
-  if (!phone) {
-    return { error: 'This field must not be empty' }
-  }
-
   const email = formData.get('email')?.toString()?.trim() || ''
   if (!email) {
     return { error: 'This field must not be empty' }
@@ -48,6 +43,14 @@ export async function submitSignUp(
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
   if (!isEmailValid) {
     return { error: 'Enter a valid email address' }
+  }
+
+  const memberNumber = formData.get('memberNumber')?.toString()?.trim() || ''
+  if (!memberNumber) {
+    return { error: 'This field must not be empty' }
+  }
+  if (!/^\d{6}$/.test(memberNumber)) {
+    return { error: 'Member number must be exactly 6 numbers.' }
   }
 
   const { pin, error: pinError } = validatePin(formData.get('pin'))
@@ -68,8 +71,8 @@ export async function submitSignUp(
   const member = await db.member.create({
     data: {
       fullName,
-      phone,
       email,
+      memberNumber,
       pinHash,
       deviceId,
       tier: 'BASIC',

@@ -201,6 +201,17 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Instantly disappears the moment a valid email format is entered.
   - Displays *"This field must not be empty"* if focused and left blank.
 
+### Phase 16: Member Number Field with 6-Digit Numeric Enforcement
+- **Replaced Phone Number with Member Number**:
+  - Swapped out phone number in `SignUpView` for a dedicated Member Number field (`type="text"`, `inputMode="numeric"`, `maxLength={6}`).
+  - Added `memberNumber String?` to `Member` in `prisma/schema.prisma` and regenerated Prisma Client.
+- **Numbers-Only Input Filtering & Validation**:
+  - Filtered input in real time using `e.target.value.replace(/\D/g, '').slice(0, 6)` ensuring only numbers can be entered.
+  - Enforced that exactly 6 digits must be entered (`trimmed.length === 6`).
+  - Displays inline error *"Member number must be 6 numbers"* with `<CautionIcon />` and error outline if fewer than 6 numbers are entered upon blur/submit.
+  - Displays *"This field must not be empty"* if left blank.
+  - Mirrored exact 6-digit check (`/^\d{6}$/`) in `submitSignUp` (`app/auth/actions.ts`).
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

@@ -38,10 +38,11 @@ enum StaffRole {
 
 model Member {
   id       String @id @default(uuid())
-  fullName String
-  phone    String?
-  email    String?
-  tier     Tier   @default(BASIC)
+  fullName     String
+  phone        String?
+  email        String?
+  memberNumber String?
+  tier         Tier   @default(BASIC)
 
   expiryDate DateTime
 
