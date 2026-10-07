@@ -275,20 +275,37 @@ function SignUpView({
 
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignUp, {})
 
-  const isNameEmpty = nameTouched && fullName.trim() === ''
+  function getFullNameError(name: string, touched: boolean): string | null {
+    if (!touched) return null
+    const trimmed = name.trim()
+    if (trimmed === '') {
+      return 'This field must not be empty'
+    }
+    if (trimmed.length < 2) {
+      return 'Full name must be at least 2 characters'
+    }
+    const words = trimmed.split(/\s+/).filter(Boolean)
+    if (words.length < 2) {
+      return 'Please enter at least 2 names separated with a space'
+    }
+    return null
+  }
+
+  const nameError = getFullNameError(fullName, nameTouched)
+  const isNameValid = getFullNameError(fullName, true) === null
   const isPhoneEmpty = phoneTouched && phone.trim() === ''
   const isPinEmpty = pinTouched && pin.trim() === ''
   const isConfirmEmpty = confirmTouched && confirmPin.trim() === ''
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (
-      fullName.trim() === '' ||
+      !isNameValid ||
       phone.trim() === '' ||
       pin.trim() === '' ||
       confirmPin.trim() === ''
     ) {
       e.preventDefault()
-      if (fullName.trim() === '') setNameTouched(true)
+      setNameTouched(true)
       if (phone.trim() === '') setPhoneTouched(true)
       if (pin.trim() === '') setPinTouched(true)
       if (confirmPin.trim() === '') setConfirmTouched(true)
@@ -321,6 +338,7 @@ function SignUpView({
             type="text"
             autoComplete="name"
             placeholder="e.g. Alex Johnson"
+            minLength={2}
             value={fullName}
             onChange={(e) => {
               setFullName(e.target.value)
@@ -328,14 +346,18 @@ function SignUpView({
             }}
             onBlur={() => setNameTouched(true)}
             required
-            className={`${styles.input} ${isNameEmpty ? styles.inputError : ''}`}
-            aria-invalid={isNameEmpty ? true : undefined}
-            aria-describedby={isNameEmpty ? 'signup-name-error' : undefined}
+            className={`${styles.input} ${nameError ? styles.inputError : ''}`}
+            aria-invalid={nameError ? true : undefined}
+            aria-describedby={nameError ? 'signup-name-error' : 'signup-name-help'}
           />
-          {isNameEmpty && (
+          {nameError ? (
             <p id="signup-name-error" className={styles.fieldError} role="alert">
               <CautionIcon />
-              <span>This field must not be empty</span>
+              <span>{nameError}</span>
+            </p>
+          ) : (
+            <p id="signup-name-help" className={styles.helper}>
+              At least 2 names separated with a space.
             </p>
           )}
         </div>

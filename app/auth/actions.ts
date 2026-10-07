@@ -28,6 +28,13 @@ export async function submitSignUp(
   if (!fullName) {
     return { error: 'This field must not be empty' }
   }
+  if (fullName.length < 2) {
+    return { error: 'Full name must be at least 2 characters.' }
+  }
+  const nameParts = fullName.split(/\s+/).filter(Boolean)
+  if (nameParts.length < 2) {
+    return { error: 'Please enter at least 2 names separated with a space.' }
+  }
 
   const phone = formData.get('phone')?.toString()?.trim() || ''
   if (!phone) {

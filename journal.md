@@ -179,6 +179,18 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Placed `<CautionIcon />` beside all inline *"This field must not be empty"* error messages across `UnifiedAuthCard`, `SignInModal`, `PinForm`, and `ActivationCodeForm`.
   - Configured `currentColor` inheritance to consume `--color-error` automatically, with `aria-hidden="true"` so screen readers read only the descriptive error text.
 
+### Phase 14: Full Name Multi-Word & Minimum Length Validation
+- **Validation Constraints**:
+  - Enforced a minimum length of 2 characters (`minLength={2}`).
+  - Validated that full name contains at least 2 words / names separated by whitespace (e.g. *"First Last"*).
+- **Inline Error Feedback**:
+  - If field is empty on blur: displays *"This field must not be empty"*.
+  - If length < 2: displays *"Full name must be at least 2 characters"*.
+  - If fewer than 2 names: displays *"Please enter at least 2 names separated with a space"*.
+  - Inline error is paired with `<CautionIcon />` and input error outline.
+- **Server Action Validation**:
+  - Mirrored length and multi-word checks in `submitSignUp` (`app/auth/actions.ts`) to ensure secure server-side enforcement.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale
