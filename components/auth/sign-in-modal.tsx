@@ -211,8 +211,8 @@ function SignInForm() {
 
       <p className={styles.modalFootnote}>
         New member?{' '}
-        <Link href="/auth?view=activate" className={styles.modalFootnoteLink} prefetch={false}>
-          Get your activation code from the desk →
+        <Link href="/auth?view=signup" className={styles.modalFootnoteLink} prefetch={false}>
+          Create your account →
         </Link>
       </p>
     </form>
@@ -220,24 +220,22 @@ function SignInForm() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Sign-up panel — routes to /auth?view=activate
+   Sign-up panel — routes to /auth?view=signup
    ───────────────────────────────────────────────────────────── */
 function SignUpPanel() {
   return (
     <div className={styles.modalForm}>
       <p className={styles.modalFootnote} style={{ textAlign: 'left', fontSize: '0.9rem' }}>
-        Spotter is a private member app. To get started, ask any staff member at
-        the front desk for a one-time <strong>activation code</strong>. You'll
-        use it to link this device to your membership.
+        Create your Spotter account directly to track your workouts, attendance, and gym rules on this device.
       </p>
 
       <Link
-        id="go-to-activate-btn"
-        href="/auth?view=activate"
+        id="go-to-signup-btn"
+        href="/auth?view=signup"
         className={styles.modalPrimaryBtn}
         style={{ textDecoration: 'none' }}
       >
-        Enter activation code →
+        Create your account →
       </Link>
 
       <div className={styles.modalDivider}>already have an account?</div>

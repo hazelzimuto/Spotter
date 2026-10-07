@@ -37,7 +37,9 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
 
   let initialView: AuthView = 'signin'
 
-  if (params.view === 'activate') {
+  if (params.view === 'signup') {
+    initialView = 'signup'
+  } else if (params.view === 'activate') {
     initialView = 'activate'
   } else if (params.view === 'pin' && pendingMemberId) {
     initialView = 'pin'

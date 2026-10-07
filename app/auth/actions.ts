@@ -17,6 +17,56 @@ export type AuthFormState = {
 }
 
 /**
+ * Sign-up action: Creates a new member account with Full Name, Phone number, and 4-digit PIN,
+ * binding this device directly to the new account.
+ */
+export async function submitSignUp(
+  _prev: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const fullName = formData.get('fullName')?.toString()?.trim() || ''
+  if (!fullName) {
+    return { error: 'This field must not be empty' }
+  }
+
+  const phone = formData.get('phone')?.toString()?.trim() || ''
+  if (!phone) {
+    return { error: 'This field must not be empty' }
+  }
+
+  const { pin, error: pinError } = validatePin(formData.get('pin'))
+  if (pinError) return { error: pinError }
+
+  const confirmPin = formData.get('confirmPin')
+  if (confirmPin !== pin) {
+    return { error: 'The two PINs do not match.' }
+  }
+
+  const deviceId = await getOrCreateDeviceId()
+  const pinHash = await hashPin(pin)
+
+  // Initial 30-day membership access window
+  const expiryDate = new Date()
+  expiryDate.setDate(expiryDate.getDate() + 30)
+
+  const member = await db.member.create({
+    data: {
+      fullName,
+      phone,
+      pinHash,
+      deviceId,
+      tier: 'BASIC',
+      openingBalance: 0,
+      currentBalance: 0,
+      expiryDate,
+    },
+  })
+
+  await createSession(member.id, deviceId)
+  redirect('/member')
+}
+
+/**
  * Sign-in action: Authenticates a member on an already linked device using their 4-digit PIN.
  */
 export async function submitSignIn(

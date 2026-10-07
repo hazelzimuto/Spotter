@@ -5,23 +5,25 @@
  *
  * Views:
  * - 'signin': PIN entry for already linked devices.
+ * - 'signup': Self-serve member registration (Full Name, Phone, 4-digit PIN).
  * - 'activate': 1-time activation code entry from the front desk (Step 1).
  * - 'pin': 4-digit PIN configuration and confirmation (Step 2).
  */
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import {
   submitSignIn,
+  submitSignUp,
   submitActivationCode,
   submitPin,
   type AuthFormState,
 } from '@/app/auth/actions'
 import styles from './auth.module.css'
 
-export type AuthView = 'signin' | 'activate' | 'pin'
+export type AuthView = 'signin' | 'signup' | 'activate' | 'pin'
 
 interface UnifiedAuthCardProps {
   initialView?: AuthView
@@ -45,7 +47,7 @@ export function UnifiedAuthCard({ initialView = 'signin' }: UnifiedAuthCardProps
       if (typeof window === 'undefined') return
       const params = new URLSearchParams(window.location.search)
       const v = params.get('view')
-      if (v === 'activate' || v === 'signin' || v === 'pin') {
+      if (v === 'activate' || v === 'signin' || v === 'signup' || v === 'pin') {
         setView(v)
       }
     }
@@ -75,8 +77,8 @@ export function UnifiedAuthCard({ initialView = 'signin' }: UnifiedAuthCardProps
         </div>
       </div>
 
-      {/* ── Tab Switcher for Primary Auth Paths (Sign In vs Activate) ── */}
-      {view !== 'pin' && (
+      {/* ── Tab Switcher for Primary Auth Paths (Sign In vs Sign Up) ── */}
+      {view !== 'pin' && view !== 'activate' && (
         <div
           className={styles.tabsContainer}
           role="tablist"
@@ -95,14 +97,14 @@ export function UnifiedAuthCard({ initialView = 'signin' }: UnifiedAuthCardProps
           </button>
           <button
             type="button"
-            id="tab-activate-btn"
+            id="tab-signup-btn"
             role="tab"
-            aria-selected={view === 'activate'}
-            aria-controls="auth-panel-activate"
-            className={`${styles.tab} ${view === 'activate' ? styles.tabActive : ''}`}
-            onClick={() => switchView('activate')}
+            aria-selected={view === 'signup'}
+            aria-controls="auth-panel-signup"
+            className={`${styles.tab} ${view === 'signup' ? styles.tabActive : ''}`}
+            onClick={() => switchView('signup')}
           >
-            Link device
+            Sign up
           </button>
         </div>
       )}
@@ -110,13 +112,28 @@ export function UnifiedAuthCard({ initialView = 'signin' }: UnifiedAuthCardProps
       {/* ── Conditional Views ── */}
       {view === 'signin' && (
         <div id="auth-panel-signin" role="tabpanel" aria-labelledby="tab-signin-btn">
-          <SignInView onSwitchToActivate={() => switchView('activate')} />
+          <SignInView
+            onSwitchToSignUp={() => switchView('signup')}
+            onSwitchToActivate={() => switchView('activate')}
+          />
+        </div>
+      )}
+
+      {view === 'signup' && (
+        <div id="auth-panel-signup" role="tabpanel" aria-labelledby="tab-signup-btn">
+          <SignUpView
+            onSwitchToSignIn={() => switchView('signin')}
+            onSwitchToActivate={() => switchView('activate')}
+          />
         </div>
       )}
 
       {view === 'activate' && (
-        <div id="auth-panel-activate" role="tabpanel" aria-labelledby="tab-activate-btn">
-          <ActivationCodeView onSwitchToSignIn={() => switchView('signin')} />
+        <div id="auth-panel-activate" role="region" aria-label="Activate device with code">
+          <ActivationCodeView
+            onSwitchToSignIn={() => switchView('signin')}
+            onSwitchToSignUp={() => switchView('signup')}
+          />
         </div>
       )}
 
@@ -132,7 +149,13 @@ export function UnifiedAuthCard({ initialView = 'signin' }: UnifiedAuthCardProps
 /* ─────────────────────────────────────────────────────────────
    VIEW 1: Sign-In with 4-digit PIN
    ───────────────────────────────────────────────────────────── */
-function SignInView({ onSwitchToActivate }: { onSwitchToActivate: () => void }) {
+function SignInView({
+  onSwitchToSignUp,
+  onSwitchToActivate,
+}: {
+  onSwitchToSignUp: () => void
+  onSwitchToActivate: () => void
+}) {
   const [pin, setPin] = useState('')
   const [touched, setTouched] = useState(false)
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignIn, {})
@@ -201,14 +224,26 @@ function SignInView({ onSwitchToActivate }: { onSwitchToActivate: () => void }) 
         </div>
 
         <div className={styles.switchPrompt}>
-          <span>New member or new phone?</span>
+          <span>New member?</span>
+          <button
+            type="button"
+            className={styles.switchLink}
+            onClick={onSwitchToSignUp}
+            aria-label="Switch to Sign up view"
+          >
+            Create your account →
+          </button>
+        </div>
+
+        <div className={styles.switchPrompt} style={{ marginTop: 0 }}>
+          <span>Have an activation code?</span>
           <button
             type="button"
             className={styles.switchLink}
             onClick={onSwitchToActivate}
-            aria-label="Switch to Link device view"
+            aria-label="Switch to Activation code view"
           >
-            Activate device with code →
+            Enter code from desk →
           </button>
         </div>
       </form>
@@ -217,9 +252,227 @@ function SignInView({ onSwitchToActivate }: { onSwitchToActivate: () => void }) 
 }
 
 /* ─────────────────────────────────────────────────────────────
-   VIEW 2: Activation Code Entry (Step 1)
+   VIEW 2: Self-Serve Sign-Up (Full Name, Phone, 4-digit PIN)
    ───────────────────────────────────────────────────────────── */
-function ActivationCodeView({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
+function SignUpView({
+  onSwitchToSignIn,
+  onSwitchToActivate,
+}: {
+  onSwitchToSignIn: () => void
+  onSwitchToActivate: () => void
+}) {
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [pin, setPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
+
+  const [nameTouched, setNameTouched] = useState(false)
+  const [phoneTouched, setPhoneTouched] = useState(false)
+  const [pinTouched, setPinTouched] = useState(false)
+  const [confirmTouched, setConfirmTouched] = useState(false)
+
+  const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignUp, {})
+
+  const isNameEmpty = nameTouched && fullName.trim() === ''
+  const isPhoneEmpty = phoneTouched && phone.trim() === ''
+  const isPinEmpty = pinTouched && pin.trim() === ''
+  const isConfirmEmpty = confirmTouched && confirmPin.trim() === ''
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (
+      fullName.trim() === '' ||
+      phone.trim() === '' ||
+      pin.trim() === '' ||
+      confirmPin.trim() === ''
+    ) {
+      e.preventDefault()
+      if (fullName.trim() === '') setNameTouched(true)
+      if (phone.trim() === '') setPhoneTouched(true)
+      if (pin.trim() === '') setPinTouched(true)
+      if (confirmPin.trim() === '') setConfirmTouched(true)
+    }
+  }
+
+  return (
+    <>
+      <div className={styles.header}>
+        <h1 className={styles.heading}>Create your account</h1>
+        <p className={styles.subtext}>
+          Join Spotter to access your gym visits, balance, and timetable on this phone.
+        </p>
+      </div>
+
+      <form action={formAction} onSubmit={handleSubmit} className={styles.form} noValidate>
+        {state?.error && (
+          <p className={styles.error} role="alert">
+            {state.error}
+          </p>
+        )}
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="signup-name">
+            Full name
+          </label>
+          <input
+            id="signup-name"
+            name="fullName"
+            type="text"
+            autoComplete="name"
+            placeholder="e.g. Alex Johnson"
+            value={fullName}
+            onChange={(e) => {
+              setFullName(e.target.value)
+              if (!nameTouched) setNameTouched(true)
+            }}
+            onBlur={() => setNameTouched(true)}
+            required
+            className={styles.input}
+            aria-invalid={isNameEmpty ? true : undefined}
+            aria-describedby={isNameEmpty ? 'signup-name-error' : undefined}
+          />
+          {isNameEmpty && (
+            <p id="signup-name-error" className={styles.fieldError} role="alert">
+              This field must not be empty
+            </p>
+          )}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="signup-phone">
+            Phone number
+          </label>
+          <input
+            id="signup-phone"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            placeholder="080... or +234..."
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value)
+              if (!phoneTouched) setPhoneTouched(true)
+            }}
+            onBlur={() => setPhoneTouched(true)}
+            required
+            className={styles.input}
+            aria-invalid={isPhoneEmpty ? true : undefined}
+            aria-describedby={isPhoneEmpty ? 'signup-phone-error' : undefined}
+          />
+          {isPhoneEmpty && (
+            <p id="signup-phone-error" className={styles.fieldError} role="alert">
+              This field must not be empty
+            </p>
+          )}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="signup-pin">
+            Create a 4-digit PIN
+          </label>
+          <input
+            id="signup-pin"
+            name="pin"
+            type="password"
+            inputMode="numeric"
+            autoComplete="new-password"
+            maxLength={4}
+            pattern="[0-9]{4}"
+            placeholder="••••"
+            value={pin}
+            onChange={(e) => {
+              setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+              if (!pinTouched) setPinTouched(true)
+            }}
+            onBlur={() => setPinTouched(true)}
+            required
+            className={`${styles.input} ${styles.pinInput}`}
+            aria-invalid={isPinEmpty ? true : undefined}
+            aria-describedby={isPinEmpty ? 'signup-pin-error' : 'signup-pin-help'}
+          />
+          {isPinEmpty ? (
+            <p id="signup-pin-error" className={styles.fieldError} role="alert">
+              This field must not be empty
+            </p>
+          ) : (
+            <p id="signup-pin-help" className={styles.helper}>
+              Used to sign in on this device.
+            </p>
+          )}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="signup-confirm-pin">
+            Confirm PIN
+          </label>
+          <input
+            id="signup-confirm-pin"
+            name="confirmPin"
+            type="password"
+            inputMode="numeric"
+            autoComplete="new-password"
+            maxLength={4}
+            pattern="[0-9]{4}"
+            placeholder="••••"
+            value={confirmPin}
+            onChange={(e) => {
+              setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+              if (!confirmTouched) setConfirmTouched(true)
+            }}
+            onBlur={() => setConfirmTouched(true)}
+            required
+            className={`${styles.input} ${styles.pinInput}`}
+            aria-invalid={isConfirmEmpty ? true : undefined}
+            aria-describedby={isConfirmEmpty ? 'signup-confirm-error' : undefined}
+          />
+          {isConfirmEmpty && (
+            <p id="signup-confirm-error" className={styles.fieldError} role="alert">
+              This field must not be empty
+            </p>
+          )}
+        </div>
+
+        <div className={styles.actions}>
+          <SubmitButton label="Create account & enter" pendingLabel="Creating account…" />
+        </div>
+
+        <div className={styles.switchPrompt}>
+          <span>Already have an account?</span>
+          <button
+            type="button"
+            className={styles.switchLink}
+            onClick={onSwitchToSignIn}
+            aria-label="Switch to Sign in view"
+          >
+            Sign in with PIN →
+          </button>
+        </div>
+
+        <div className={styles.switchPrompt} style={{ marginTop: 0 }}>
+          <span>Have an activation code?</span>
+          <button
+            type="button"
+            className={styles.switchLink}
+            onClick={onSwitchToActivate}
+            aria-label="Switch to Activation code view"
+          >
+            Enter code from desk →
+          </button>
+        </div>
+      </form>
+    </>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────
+   VIEW 3: Activation Code Entry (Optional Staff Flow)
+   ───────────────────────────────────────────────────────────── */
+function ActivationCodeView({
+  onSwitchToSignIn,
+  onSwitchToSignUp,
+}: {
+  onSwitchToSignIn: () => void
+  onSwitchToSignUp: () => void
+}) {
   const [code, setCode] = useState('')
   const [touched, setTouched] = useState(false)
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitActivationCode, {})
@@ -236,9 +489,16 @@ function ActivationCodeView({ onSwitchToSignIn }: { onSwitchToSignIn: () => void
   return (
     <>
       <div className={styles.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
-          <h1 className={styles.heading}>Link your device</h1>
-        </div>
+        <button
+          type="button"
+          onClick={onSwitchToSignUp}
+          className={styles.backButton}
+          aria-label="Back to sign up"
+          style={{ marginBottom: 'var(--spacing-2)' }}
+        >
+          <span aria-hidden="true">←</span> Back to sign up
+        </button>
+        <h1 className={styles.heading}>Link with code</h1>
         <p className={styles.subtext}>
           Enter the activation code from the front desk to connect this phone to your membership.
         </p>
@@ -308,7 +568,7 @@ function ActivationCodeView({ onSwitchToSignIn }: { onSwitchToSignIn: () => void
 }
 
 /* ─────────────────────────────────────────────────────────────
-   VIEW 3: Set PIN & Confirm PIN (Step 2)
+   VIEW 4: Set PIN & Confirm PIN (After Code Activation)
    ───────────────────────────────────────────────────────────── */
 function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
   const [pin, setPin] = useState('')

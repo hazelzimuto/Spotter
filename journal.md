@@ -154,6 +154,22 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Bound inputs with `aria-invalid={true}` and `aria-describedby` linking to error IDs with `role="alert"`.
   - Form submission blocks execution and triggers field-level error messages if fields remain blank.
 
+### Phase 12: Self-Serve Member Sign-Up Integration
+- **Direct Sign-Up Workflow**:
+  - Replaced the mandatory desk-code onboarding prerequisite with a direct self-serve sign-up form (`SignUpView` in `components/auth/unified-auth-card.tsx`).
+  - Added fields: Full Name (`fullName`), Phone Number (`phone`), 4-Digit PIN (`pin`), and Confirm PIN (`confirmPin`).
+  - Applied real-time `onBlur` empty field validation (*"This field must not be empty"*).
+  - Maintained the optional desk activation code flow as a secondary path (`/auth?view=activate`).
+- **Server Action & Database Attribution**:
+  - Implemented `submitSignUp` in `app/auth/actions.ts`:
+    1. Validates non-empty names and phone numbers.
+    2. Enforces matching 4-digit PINs.
+    3. Hashes PIN via `bcrypt` and mints long-lived `deviceId` cookie.
+    4. Automatically provisions a `BASIC` member with a 30-day initial access window.
+    5. Issues an HTTP-only authenticated session and redirects directly to `/member`.
+  - Added `phone String?` to `Member` in `prisma/schema.prisma` and regenerated Prisma Client.
+  - Updated landing page sign-up calls to route directly to `/auth?view=signup`.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale
