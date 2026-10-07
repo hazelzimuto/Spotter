@@ -128,13 +128,24 @@ export function SignInModal({ onClose, initialTab = 'signin' }: SignInModalProps
    ───────────────────────────────────────────────────────────── */
 function SignInForm() {
   const [pin, setPin] = useState('')
+  const [touched, setTouched] = useState(false)
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignIn, {})
+
+  const isPinEmpty = touched && pin.trim() === ''
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (pin.trim() === '') {
+      e.preventDefault()
+      setTouched(true)
+    }
+  }
 
   return (
     <form
       id="sign-in-form"
       className={styles.modalForm}
       action={formAction}
+      onSubmit={handleSubmit}
       noValidate
     >
       {state?.error && (
@@ -166,15 +177,25 @@ function SignInForm() {
           autoComplete="current-password"
           placeholder="••••"
           value={pin}
-          onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+          onChange={(e) => {
+            setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+            if (!touched) setTouched(true)
+          }}
+          onBlur={() => setTouched(true)}
           className={styles.modalInput}
-          aria-describedby="pin-hint"
-          aria-invalid={state?.error ? true : undefined}
+          aria-describedby={isPinEmpty ? 'modal-pin-error' : 'pin-hint'}
+          aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
           required
         />
-        <span id="pin-hint" className={styles.modalFootnote} style={{ textAlign: 'left' }}>
-          Set during your first device activation.
-        </span>
+        {isPinEmpty ? (
+          <p id="modal-pin-error" className={styles.modalFieldError} role="alert">
+            This field must not be empty
+          </p>
+        ) : (
+          <span id="pin-hint" className={styles.modalFootnote} style={{ textAlign: 'left' }}>
+            Set during your first device activation.
+          </span>
+        )}
       </div>
 
       <button

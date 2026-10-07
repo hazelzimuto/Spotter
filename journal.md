@@ -146,6 +146,14 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Updated `proxy.ts` to route-gate `/auth` and redirect legacy `/activate` and `/activate/pin` routes to `/auth?view=activate` and `/auth?view=pin`.
   - Updated pending activation cookie path to root (`/`) to preserve multi-screen state transitions.
 
+### Phase 11: Real-Time Empty Field Validation (`onBlur`)
+- **Focus & Blur Validation Behavior**:
+  - Implemented `onBlur` listeners across all authentication form fields (`pin`, `activationCode`, `confirmPin`).
+  - When a user focuses a field and leaves without entering content, an accessible inline error message dynamically displays: *"This field must not be empty"*.
+  - Styled with `.fieldError` and `.modalFieldError` consuming `--color-error` tokens.
+  - Bound inputs with `aria-invalid={true}` and `aria-describedby` linking to error IDs with `role="alert"`.
+  - Form submission blocks execution and triggers field-level error messages if fields remain blank.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

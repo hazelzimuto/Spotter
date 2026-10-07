@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useState, useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { submitPin, type ActivationCodeState } from '@/app/activate/actions'
 import styles from './auth.module.css'
@@ -16,13 +16,28 @@ function SubmitButton() {
 }
 
 export function PinForm() {
+  const [pin, setPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
+  const [pinTouched, setPinTouched] = useState(false)
+  const [confirmTouched, setConfirmTouched] = useState(false)
   const [state, formAction] = useActionState<ActivationCodeState, FormData>(
     submitPin,
     {},
   )
 
+  const isPinEmpty = pinTouched && pin.trim() === ''
+  const isConfirmEmpty = confirmTouched && confirmPin.trim() === ''
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (pin.trim() === '' || confirmPin.trim() === '') {
+      e.preventDefault()
+      if (pin.trim() === '') setPinTouched(true)
+      if (confirmPin.trim() === '') setConfirmTouched(true)
+    }
+  }
+
   return (
-    <form action={formAction} className={styles.form} noValidate>
+    <form action={formAction} onSubmit={handleSubmit} className={styles.form} noValidate>
       {state.error ? (
         <p className={styles.error} role="alert">
           {state.error}
@@ -42,13 +57,25 @@ export function PinForm() {
           autoComplete="new-password"
           maxLength={4}
           pattern="[0-9]{4}"
+          value={pin}
+          onChange={(e) => {
+            setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+            if (!pinTouched) setPinTouched(true)
+          }}
+          onBlur={() => setPinTouched(true)}
           required
-          aria-invalid={state.error ? true : undefined}
-          aria-describedby={state.error ? undefined : 'pin-help'}
+          aria-invalid={isPinEmpty ? true : state.error ? true : undefined}
+          aria-describedby={isPinEmpty ? 'pin-error' : 'pin-help'}
         />
-        <p id="pin-help" className={styles.helper}>
-          Exactly 4 digits.
-        </p>
+        {isPinEmpty ? (
+          <p id="pin-error" className={styles.fieldError} role="alert">
+            This field must not be empty
+          </p>
+        ) : (
+          <p id="pin-help" className={styles.helper}>
+            Exactly 4 digits.
+          </p>
+        )}
       </div>
 
       <div className={styles.field}>
@@ -64,8 +91,21 @@ export function PinForm() {
           autoComplete="new-password"
           maxLength={4}
           pattern="[0-9]{4}"
+          value={confirmPin}
+          onChange={(e) => {
+            setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+            if (!confirmTouched) setConfirmTouched(true)
+          }}
+          onBlur={() => setConfirmTouched(true)}
           required
+          aria-invalid={isConfirmEmpty ? true : undefined}
+          aria-describedby={isConfirmEmpty ? 'confirmPin-error' : undefined}
         />
+        {isConfirmEmpty && (
+          <p id="confirmPin-error" className={styles.fieldError} role="alert">
+            This field must not be empty
+          </p>
+        )}
       </div>
 
       <div className={styles.actions}>

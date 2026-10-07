@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useState, useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { submitActivationCode, type ActivationCodeState } from '@/app/activate/actions'
 import styles from './auth.module.css'
@@ -16,13 +16,24 @@ function SubmitButton() {
 }
 
 export function ActivationCodeForm() {
+  const [code, setCode] = useState('')
+  const [touched, setTouched] = useState(false)
   const [state, formAction] = useActionState<ActivationCodeState, FormData>(
     submitActivationCode,
     {},
   )
 
+  const isCodeEmpty = touched && code.trim() === ''
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (code.trim() === '') {
+      e.preventDefault()
+      setTouched(true)
+    }
+  }
+
   return (
-    <form action={formAction} className={styles.form} noValidate>
+    <form action={formAction} onSubmit={handleSubmit} className={styles.form} noValidate>
       {state.error ? (
         <p className={styles.error} role="alert">
           {state.error}
@@ -43,13 +54,25 @@ export function ActivationCodeForm() {
           autoCapitalize="characters"
           spellCheck={false}
           maxLength={20}
+          value={code}
+          onChange={(e) => {
+            setCode(e.target.value)
+            if (!touched) setTouched(true)
+          }}
+          onBlur={() => setTouched(true)}
           required
-          aria-invalid={state.error ? true : undefined}
-          aria-describedby={state.error ? undefined : 'activationCode-help'}
+          aria-invalid={isCodeEmpty ? true : state.error ? true : undefined}
+          aria-describedby={isCodeEmpty ? 'activationCode-error' : 'activationCode-help'}
         />
-        <p id="activationCode-help" className={styles.helper}>
-          The desk generates this code for you. Each code works once.
-        </p>
+        {isCodeEmpty ? (
+          <p id="activationCode-error" className={styles.fieldError} role="alert">
+            This field must not be empty
+          </p>
+        ) : (
+          <p id="activationCode-help" className={styles.helper}>
+            The desk generates this code for you. Each code works once.
+          </p>
+        )}
       </div>
 
       <div className={styles.actions}>

@@ -133,7 +133,18 @@ export function UnifiedAuthCard({ initialView = 'signin' }: UnifiedAuthCardProps
    VIEW 1: Sign-In with 4-digit PIN
    ───────────────────────────────────────────────────────────── */
 function SignInView({ onSwitchToActivate }: { onSwitchToActivate: () => void }) {
+  const [pin, setPin] = useState('')
+  const [touched, setTouched] = useState(false)
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignIn, {})
+
+  const isPinEmpty = touched && pin.trim() === ''
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (pin.trim() === '') {
+      e.preventDefault()
+      setTouched(true)
+    }
+  }
 
   return (
     <>
@@ -144,7 +155,7 @@ function SignInView({ onSwitchToActivate }: { onSwitchToActivate: () => void }) 
         </p>
       </div>
 
-      <form action={formAction} className={styles.form} noValidate>
+      <form action={formAction} onSubmit={handleSubmit} className={styles.form} noValidate>
         {state?.error && (
           <p className={styles.error} role="alert">
             {state.error}
@@ -163,14 +174,26 @@ function SignInView({ onSwitchToActivate }: { onSwitchToActivate: () => void }) 
             autoComplete="current-password"
             maxLength={4}
             placeholder="••••"
+            value={pin}
+            onChange={(e) => {
+              setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+              if (!touched) setTouched(true)
+            }}
+            onBlur={() => setTouched(true)}
             required
             className={`${styles.input} ${styles.pinInput}`}
-            aria-invalid={state?.error ? true : undefined}
-            aria-describedby="signin-pin-hint"
+            aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
+            aria-describedby={isPinEmpty ? 'signin-pin-error' : 'signin-pin-hint'}
           />
-          <p id="signin-pin-hint" className={styles.helper}>
-            Configured during your first device setup.
-          </p>
+          {isPinEmpty ? (
+            <p id="signin-pin-error" className={styles.fieldError} role="alert">
+              This field must not be empty
+            </p>
+          ) : (
+            <p id="signin-pin-hint" className={styles.helper}>
+              Configured during your first device setup.
+            </p>
+          )}
         </div>
 
         <div className={styles.actions}>
@@ -197,7 +220,18 @@ function SignInView({ onSwitchToActivate }: { onSwitchToActivate: () => void }) 
    VIEW 2: Activation Code Entry (Step 1)
    ───────────────────────────────────────────────────────────── */
 function ActivationCodeView({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
+  const [code, setCode] = useState('')
+  const [touched, setTouched] = useState(false)
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitActivationCode, {})
+
+  const isCodeEmpty = touched && code.trim() === ''
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (code.trim() === '') {
+      e.preventDefault()
+      setTouched(true)
+    }
+  }
 
   return (
     <>
@@ -211,7 +245,7 @@ function ActivationCodeView({ onSwitchToSignIn }: { onSwitchToSignIn: () => void
         <span className={styles.badge}>One member, one device</span>
       </div>
 
-      <form action={formAction} className={styles.form} noValidate>
+      <form action={formAction} onSubmit={handleSubmit} className={styles.form} noValidate>
         {state?.error && (
           <p className={styles.error} role="alert">
             {state.error}
@@ -231,14 +265,26 @@ function ActivationCodeView({ onSwitchToSignIn }: { onSwitchToSignIn: () => void
             autoCapitalize="characters"
             spellCheck={false}
             maxLength={20}
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value)
+              if (!touched) setTouched(true)
+            }}
+            onBlur={() => setTouched(true)}
             required
             className={styles.input}
-            aria-invalid={state?.error ? true : undefined}
-            aria-describedby="activation-code-help"
+            aria-invalid={isCodeEmpty ? true : state?.error ? true : undefined}
+            aria-describedby={isCodeEmpty ? 'activation-code-error' : 'activation-code-help'}
           />
-          <p id="activation-code-help" className={styles.helper}>
-            The desk generates this code for you. Each code works once.
-          </p>
+          {isCodeEmpty ? (
+            <p id="activation-code-error" className={styles.fieldError} role="alert">
+              This field must not be empty
+            </p>
+          ) : (
+            <p id="activation-code-help" className={styles.helper}>
+              The desk generates this code for you. Each code works once.
+            </p>
+          )}
         </div>
 
         <div className={styles.actions}>
@@ -265,7 +311,22 @@ function ActivationCodeView({ onSwitchToSignIn }: { onSwitchToSignIn: () => void
    VIEW 3: Set PIN & Confirm PIN (Step 2)
    ───────────────────────────────────────────────────────────── */
 function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
+  const [pin, setPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
+  const [pinTouched, setPinTouched] = useState(false)
+  const [confirmTouched, setConfirmTouched] = useState(false)
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitPin, {})
+
+  const isPinEmpty = pinTouched && pin.trim() === ''
+  const isConfirmEmpty = confirmTouched && confirmPin.trim() === ''
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (pin.trim() === '' || confirmPin.trim() === '') {
+      e.preventDefault()
+      if (pin.trim() === '') setPinTouched(true)
+      if (confirmPin.trim() === '') setConfirmTouched(true)
+    }
+  }
 
   return (
     <>
@@ -286,7 +347,7 @@ function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
         <span className={styles.badge}>Step 2 of 2: Device binding</span>
       </div>
 
-      <form action={formAction} className={styles.form} noValidate>
+      <form action={formAction} onSubmit={handleSubmit} className={styles.form} noValidate>
         {state?.error && (
           <p className={styles.error} role="alert">
             {state.error}
@@ -305,14 +366,26 @@ function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
             autoComplete="new-password"
             maxLength={4}
             pattern="[0-9]{4}"
+            value={pin}
+            onChange={(e) => {
+              setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+              if (!pinTouched) setPinTouched(true)
+            }}
+            onBlur={() => setPinTouched(true)}
             required
             className={`${styles.input} ${styles.pinInput}`}
-            aria-invalid={state?.error ? true : undefined}
-            aria-describedby="setup-pin-help"
+            aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
+            aria-describedby={isPinEmpty ? 'setup-pin-error' : 'setup-pin-help'}
           />
-          <p id="setup-pin-help" className={styles.helper}>
-            Exactly 4 numeric digits.
-          </p>
+          {isPinEmpty ? (
+            <p id="setup-pin-error" className={styles.fieldError} role="alert">
+              This field must not be empty
+            </p>
+          ) : (
+            <p id="setup-pin-help" className={styles.helper}>
+              Exactly 4 numeric digits.
+            </p>
+          )}
         </div>
 
         <div className={styles.field}>
@@ -327,9 +400,22 @@ function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
             autoComplete="new-password"
             maxLength={4}
             pattern="[0-9]{4}"
+            value={confirmPin}
+            onChange={(e) => {
+              setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))
+              if (!confirmTouched) setConfirmTouched(true)
+            }}
+            onBlur={() => setConfirmTouched(true)}
             required
             className={`${styles.input} ${styles.pinInput}`}
+            aria-invalid={isConfirmEmpty ? true : undefined}
+            aria-describedby={isConfirmEmpty ? 'confirm-pin-error' : undefined}
           />
+          {isConfirmEmpty && (
+            <p id="confirm-pin-error" className={styles.fieldError} role="alert">
+              This field must not be empty
+            </p>
+          )}
         </div>
 
         <div className={styles.actions}>

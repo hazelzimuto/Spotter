@@ -155,6 +155,17 @@
   color: var(--color-text-tertiary);
 }
 
+.fieldError {
+  font-family: var(--typography-body-small-font-family);
+  font-size: var(--typography-body-small-font-size);
+  font-weight: var(--typography-body-small-font-weight);
+  line-height: var(--typography-body-small-line-height);
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
 /* ---- Actions ---- */
 
 .actions {
