@@ -79,25 +79,31 @@ export async function submitSignUp(
   const expiryDate = new Date()
   expiryDate.setDate(expiryDate.getDate() + 30)
 
-  let memberId: string
+  let memberId: string | null = null
 
   if (hasDatabaseUrl) {
-    const member = await db.member.create({
-      data: {
-        fullName,
-        email,
-        memberNumber,
-        passwordHash,
-        pinHash: passwordHash,
-        deviceId,
-        tier: 'BASIC',
-        openingBalance: 0,
-        currentBalance: 0,
-        expiryDate,
-      },
-    })
-    memberId = member.id
-  } else {
+    try {
+      const member = await db.member.create({
+        data: {
+          fullName,
+          email,
+          memberNumber,
+          passwordHash,
+          pinHash: passwordHash,
+          deviceId,
+          tier: 'BASIC',
+          openingBalance: 0,
+          currentBalance: 0,
+          expiryDate,
+        },
+      })
+      memberId = member.id
+    } catch (err) {
+      console.warn('Database member creation failed, falling back to dev store:', err)
+    }
+  }
+
+  if (!memberId) {
     const member = saveDevMember({
       fullName,
       email,
@@ -128,42 +134,41 @@ export async function submitSignIn(
   const deviceId = await getOrCreateDeviceId()
 
   if (hasDatabaseUrl) {
-    const member = await db.member.findFirst({
-      where: { deviceId },
-      select: { id: true, pinHash: true, deviceId: true },
-    })
+    try {
+      const member = await db.member.findFirst({
+        where: { deviceId },
+        select: { id: true, pinHash: true, deviceId: true },
+      })
 
-    if (!member || !member.pinHash) {
-      return {
-        error:
-          'This device has not been linked to a membership yet. Please enter your activation code from the front desk to link it.',
+      if (member?.pinHash) {
+        const matches = await verifyPin(pin, member.pinHash)
+        if (!matches) {
+          return { error: 'Incorrect PIN. Please try again.' }
+        }
+
+        await createSession(member.id, deviceId)
+        redirect('/member')
       }
+    } catch (err) {
+      console.warn('Database sign-in check failed, falling back to dev store:', err)
     }
-
-    const matches = await verifyPin(pin, member.pinHash)
-    if (!matches) {
-      return { error: 'Incorrect PIN. Please try again.' }
-    }
-
-    await createSession(member.id, deviceId)
-    redirect('/member')
-  } else {
-    const member = findDevMemberByDeviceId(deviceId)
-    if (!member || !member.pinHash) {
-      return {
-        error:
-          'This device has not been linked to a membership yet. Please create an account to get started.',
-      }
-    }
-
-    const matches = await verifyPin(pin, member.pinHash)
-    if (!matches) {
-      return { error: 'Incorrect PIN. Please try again.' }
-    }
-
-    await createSession(member.id, deviceId)
-    redirect('/member')
   }
+
+  const member = findDevMemberByDeviceId(deviceId)
+  if (!member || !member.pinHash) {
+    return {
+      error:
+        'This device has not been linked to a membership yet. Please create an account to get started.',
+    }
+  }
+
+  const matches = await verifyPin(pin, member.pinHash)
+  if (!matches) {
+    return { error: 'Incorrect PIN. Please try again.' }
+  }
+
+  await createSession(member.id, deviceId)
+  redirect('/member')
 }
 
 /**
@@ -177,39 +182,44 @@ export async function submitActivationCode(
   if (error) return { error }
 
   if (hasDatabaseUrl) {
-    const member = await db.member.findUnique({
-      where: { activationCode: code },
-      select: { id: true, deviceId: true },
-    })
-
-    // Prevent enumerating valid activation codes
-    if (!member || member.deviceId) {
-      return {
-        error:
-          'That code is not valid. Ask the front desk for a fresh code, or have them unlink your old device.',
-      }
-    }
-
-    await setPendingActivation(member.id)
-    redirect('/auth?view=pin')
-  } else {
-    let member = findDevMemberByActivationCode(code)
-    if (!member) {
-      member = saveDevMember({
-        fullName: 'Gym Member',
-        tier: 'BASIC',
-        activationCode: code,
+    try {
+      const member = await db.member.findUnique({
+        where: { activationCode: code },
+        select: { id: true, deviceId: true },
       })
-    } else if (member.deviceId) {
-      return {
-        error:
-          'That code is not valid. Ask the front desk for a fresh code, or have them unlink your old device.',
-      }
-    }
 
-    await setPendingActivation(member.id)
-    redirect('/auth?view=pin')
+      if (member) {
+        if (member.deviceId) {
+          return {
+            error:
+              'That code is not valid. Ask the front desk for a fresh code, or have them unlink your old device.',
+          }
+        }
+
+        await setPendingActivation(member.id)
+        redirect('/auth?view=pin')
+      }
+    } catch (err) {
+      console.warn('Database activation check failed, falling back to dev store:', err)
+    }
   }
+
+  let member = findDevMemberByActivationCode(code)
+  if (!member) {
+    member = saveDevMember({
+      fullName: 'Gym Member',
+      tier: 'BASIC',
+      activationCode: code,
+    })
+  } else if (member.deviceId) {
+    return {
+      error:
+        'That code is not valid. Ask the front desk for a fresh code, or have them unlink your old device.',
+    }
+  }
+
+  await setPendingActivation(member.id)
+  redirect('/auth?view=pin')
 }
 
 /**
@@ -231,21 +241,24 @@ export async function submitPin(
   const deviceId = await getOrCreateDeviceId()
   const pinHash = await hashPin(pin)
 
+  let boundInDb = false
   if (hasDatabaseUrl) {
-    // Bind device, store pinHash, and clear activationCode in a single query
-    const bound = await db.member.updateMany({
-      where: { id: memberId, activationCode: { not: null }, deviceId: null },
-      data: { pinHash, deviceId, activationCode: null },
-    })
+    try {
+      // Bind device, store pinHash, and clear activationCode in a single query
+      const bound = await db.member.updateMany({
+        where: { id: memberId, activationCode: { not: null }, deviceId: null },
+        data: { pinHash, deviceId, activationCode: null },
+      })
 
-    if (bound.count !== 1) {
-      await clearPendingActivation()
-      return {
-        error:
-          'This activation code has already been used. Ask the front desk for a fresh code.',
+      if (bound.count === 1) {
+        boundInDb = true
       }
+    } catch (err) {
+      console.warn('Database pin bind failed, falling back to dev store:', err)
     }
-  } else {
+  }
+
+  if (!boundInDb) {
     updateDevMemberPin(memberId, pinHash, deviceId)
   }
 

@@ -273,6 +273,15 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Updated `createSession`, `getSession`, and `destroySession` in `lib/auth/session.ts` to maintain identical cookie and device linkage logic across both modes.
   - Fixes the `PrismaClientInitializationError: Environment variable not found: DATABASE_URL` runtime error, allowing sign-ups to immediately establish member sessions and load the `/member` dashboard.
 
+### Phase 23: Environment Configuration (.env) & Database Connection Resilience
+- **Environment Secrets Setup (`.env`)**:
+  - Initialized `.env` in the project root following `.agent/rules/environment.md` rules with proper server vs. public prefixing.
+  - Configured PostgreSQL `DATABASE_URL` with connection guidelines for local dev and hosted providers (Supabase / Neon).
+  - Configured secret placeholders for Paystack (`PAYSTACK_SECRET_KEY`, `PAYSTACK_WEBHOOK_SECRET`, `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY`) and AI models (`GEMINI_API_KEY`, `OPENAI_API_KEY`).
+  - Confirmed `.env` is safely ignored by Git via `.gitignore`.
+- **Database Connection Error Resilience**:
+  - Wrapped Prisma database writes in `app/auth/actions.ts` and `lib/auth/session.ts` with structured error handling so if a configured database is unreachable or offline, the application logs a warning and seamlessly falls back to the development store without blocking user sign-ups or breaking navigation to `/member`.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

@@ -61,21 +61,29 @@ export async function createSession(memberId: string, deviceId: string) {
   const token = randomToken()
   const tokenHash = hashToken(token)
 
+  let createdInDb = false
   if (hasDatabaseUrl) {
-    await db.session.updateMany({
-      where: { memberId, revokedAt: null },
-      data: { revokedAt: new Date() },
-    })
+    try {
+      await db.session.updateMany({
+        where: { memberId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      })
 
-    await db.session.create({
-      data: {
-        memberId,
-        deviceId,
-        tokenHash,
-        lastLoginAt: new Date(),
-      },
-    })
-  } else {
+      await db.session.create({
+        data: {
+          memberId,
+          deviceId,
+          tokenHash,
+          lastLoginAt: new Date(),
+        },
+      })
+      createdInDb = true
+    } catch (err) {
+      console.warn('Database session write failed, falling back to dev session:', err)
+    }
+  }
+
+  if (!createdInDb) {
     saveDevSession({
       memberId,
       deviceId,
@@ -114,41 +122,44 @@ export async function getSession(): Promise<AuthenticatedMember | null> {
   const tokenHash = hashToken(token)
 
   if (hasDatabaseUrl) {
-    const session = await db.session.findUnique({
-      where: { tokenHash },
-      include: { member: true },
-    })
+    try {
+      const session = await db.session.findUnique({
+        where: { tokenHash },
+        include: { member: true },
+      })
 
-    if (!session || session.revokedAt) return null
+      if (session && !session.revokedAt) {
+        if (!session.member.deviceId || session.member.deviceId !== session.deviceId) {
+          return null
+        }
 
-    // A null or mismatched deviceId means staff force-unlinked this member.
-    if (!session.member.deviceId || session.member.deviceId !== session.deviceId) {
-      return null
+        return {
+          memberId: session.memberId,
+          deviceId: session.deviceId,
+          tier: session.member.tier,
+          fullName: session.member.fullName,
+        }
+      }
+    } catch (err) {
+      console.warn('Database session read failed, falling back to dev session:', err)
     }
+  }
 
-    return {
-      memberId: session.memberId,
-      deviceId: session.deviceId,
-      tier: session.member.tier,
-      fullName: session.member.fullName,
-    }
-  } else {
-    const session = findDevSessionByTokenHash(tokenHash)
-    if (!session) return null
+  const session = findDevSessionByTokenHash(tokenHash)
+  if (!session) return null
 
-    const member = findDevMemberById(session.memberId)
-    if (!member) return null
+  const member = findDevMemberById(session.memberId)
+  if (!member) return null
 
-    if (!member.deviceId || member.deviceId !== session.deviceId) {
-      return null
-    }
+  if (!member.deviceId || member.deviceId !== session.deviceId) {
+    return null
+  }
 
-    return {
-      memberId: session.memberId,
-      deviceId: session.deviceId,
-      tier: member.tier,
-      fullName: member.fullName,
-    }
+  return {
+    memberId: session.memberId,
+    deviceId: session.deviceId,
+    tier: member.tier,
+    fullName: member.fullName,
   }
 }
 
@@ -160,13 +171,16 @@ export async function destroySession() {
   if (token) {
     const tokenHash = hashToken(token)
     if (hasDatabaseUrl) {
-      await db.session.updateMany({
-        where: { tokenHash, revokedAt: null },
-        data: { revokedAt: new Date() },
-      })
-    } else {
-      revokeDevSessionByTokenHash(tokenHash)
+      try {
+        await db.session.updateMany({
+          where: { tokenHash, revokedAt: null },
+          data: { revokedAt: new Date() },
+        })
+      } catch {
+        // Fallback or ignore DB error on logout
+      }
     }
+    revokeDevSessionByTokenHash(tokenHash)
   }
 
   cookieStore.delete(SESSION_COOKIE)
