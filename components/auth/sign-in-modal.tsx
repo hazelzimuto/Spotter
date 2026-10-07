@@ -12,8 +12,9 @@
  * No database calls are made from this client component.
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useActionState } from 'react'
 import Link from 'next/link'
+import { submitSignIn, type AuthFormState } from '@/app/auth/actions'
 import styles from '@/app/landing.module.css'
 
 interface SignInModalProps {
@@ -123,24 +124,42 @@ export function SignInModal({ onClose, initialTab = 'signin' }: SignInModalProps
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Sign-in form — PIN entry stub
+   Sign-in form — PIN entry
    ───────────────────────────────────────────────────────────── */
 function SignInForm() {
   const [pin, setPin] = useState('')
+  const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignIn, {})
 
   return (
     <form
       id="sign-in-form"
       className={styles.modalForm}
-      onSubmit={(e) => e.preventDefault()}
+      action={formAction}
       noValidate
     >
+      {state?.error && (
+        <div
+          style={{
+            padding: 'var(--spacing-3)',
+            backgroundColor: 'var(--color-error-container)',
+            color: 'var(--color-on-error-container)',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: 'var(--typography-font-size-13)',
+            lineHeight: 1.4,
+          }}
+          role="alert"
+        >
+          {state.error}
+        </div>
+      )}
+
       <div className={styles.modalField}>
         <label htmlFor="pin-input" className={styles.modalLabel}>
           Your 4-digit PIN
         </label>
         <input
           id="pin-input"
+          name="pin"
           type="password"
           inputMode="numeric"
           maxLength={4}
@@ -150,6 +169,7 @@ function SignInForm() {
           onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
           className={styles.modalInput}
           aria-describedby="pin-hint"
+          aria-invalid={state?.error ? true : undefined}
           required
         />
         <span id="pin-hint" className={styles.modalFootnote} style={{ textAlign: 'left' }}>
@@ -170,7 +190,7 @@ function SignInForm() {
 
       <p className={styles.modalFootnote}>
         New member?{' '}
-        <Link href="/activate" className={styles.modalFootnoteLink} prefetch={false}>
+        <Link href="/auth?view=activate" className={styles.modalFootnoteLink} prefetch={false}>
           Get your activation code from the desk →
         </Link>
       </p>
@@ -179,7 +199,7 @@ function SignInForm() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Sign-up panel — routes to /activate
+   Sign-up panel — routes to /auth?view=activate
    ───────────────────────────────────────────────────────────── */
 function SignUpPanel() {
   return (
@@ -192,7 +212,7 @@ function SignUpPanel() {
 
       <Link
         id="go-to-activate-btn"
-        href="/activate"
+        href="/auth?view=activate"
         className={styles.modalPrimaryBtn}
         style={{ textDecoration: 'none' }}
       >

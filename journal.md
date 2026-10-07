@@ -131,6 +131,21 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Labeled `aria-label="Feature list"` and `aria-label="Onboarding steps"` for screen reader clarity.
   - Configured full WAI-ARIA tab pattern (`role="tablist"`, `role="tab"`, `aria-selected`, `aria-controls`, `role="tabpanel"`) for in-place Privacy Policy and Terms of Service views.
 
+### Phase 10: Unified Auth Page & Conditional Views (`/auth`)
+- **Single Collapsed Authentication Screen**:
+  - Created `/auth` (`app/auth/page.tsx`), consolidating all member authentication forms onto a single page instead of disjoint routes.
+  - Implemented `UnifiedAuthCard` (`components/auth/unified-auth-card.tsx`) with conditional rendering for:
+    1. `signin`: 4-digit PIN entry for existing linked devices.
+    2. `activate`: Staff one-time activation code entry (Step 1 of onboarding).
+    3. `pin`: PIN creation and confirmation (Step 2 of onboarding).
+  - Built integrated tab switcher (`Sign in` vs `Link device`) allowing seamless toggling between forms without page reloads.
+  - Synchronized view state with URL parameters (`?view=signin`, `?view=activate`, `?view=pin`) and browser history for back/forward navigation.
+- **Server Actions & Route Unification**:
+  - Created `app/auth/actions.ts` exposing `submitSignIn`, `submitActivationCode`, and `submitPin`.
+  - Wired `SignInForm` in `components/auth/sign-in-modal.tsx` to `submitSignIn` with inline validation alerts.
+  - Updated `proxy.ts` to route-gate `/auth` and redirect legacy `/activate` and `/activate/pin` routes to `/auth?view=activate` and `/auth?view=pin`.
+  - Updated pending activation cookie path to root (`/`) to preserve multi-screen state transitions.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

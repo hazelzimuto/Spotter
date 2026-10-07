@@ -224,9 +224,102 @@
   letter-spacing: var(--typography-label-medium-letter-spacing);
 }
 
+/* ---- Tabs Switcher ---- */
+
+.tabsContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: var(--color-surface-container);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-1);
+  gap: var(--spacing-1);
+  width: 100%;
+}
+
+.tab {
+  height: 40px;
+  border-radius: var(--radius-xs);
+  border: none;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--typography-label-large-font-family);
+  font-size: var(--typography-label-large-font-size);
+  font-weight: var(--typography-label-large-font-weight);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing-standard),
+    color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.tab:hover:not(.tabActive) {
+  color: var(--color-on-surface);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.tabActive {
+  background-color: var(--color-surface-container-highest);
+  color: var(--color-on-surface);
+  box-shadow: var(--elevation-level1-box-shadow);
+}
+
+/* ---- View helper switches & navigation ---- */
+
+.switchPrompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+  font-family: var(--typography-body-small-font-family);
+  font-size: var(--typography-body-small-font-size);
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+.switchLink {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--typography-font-weight-medium);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.switchLink:hover {
+  opacity: var(--state-hover-opacity);
+}
+
+.backButton {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text-secondary);
+  font-family: var(--typography-label-medium-font-family);
+  font-size: var(--typography-label-medium-font-size);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  transition: color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.backButton:hover {
+  color: var(--color-on-surface);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .input,
-  .primaryButton {
+  .primaryButton,
+  .tab,
+  .switchLink {
     transition-duration: var(--motion-duration-instant);
   }
 }

@@ -12,11 +12,11 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const SESSION_COOKIE = 'spotter_session'
 
-/** Activation paths reachable without a session. */
-const ACTIVATION_PATHS = ['/activate', '/activate/pin']
+/** Auth and activation paths reachable without a session. */
+const AUTH_PATHS = ['/auth', '/activate', '/activate/pin']
 
-function isActivationPath(pathname: string) {
-  return ACTIVATION_PATHS.some(
+function isAuthPath(pathname: string) {
+  return AUTH_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   )
 }
@@ -33,6 +33,14 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/?view=terms', request.url))
   }
 
+  // Redirect legacy /activate routes to unified /auth conditional views.
+  if (pathname === '/activate') {
+    return NextResponse.redirect(new URL('/auth?view=activate', request.url))
+  }
+  if (pathname === '/activate/pin') {
+    return NextResponse.redirect(new URL('/auth?view=pin', request.url))
+  }
+
   // Root landing page (/) is public for unauthenticated visitors.
   if (pathname === '/') {
     if (hasSession) {
@@ -41,13 +49,13 @@ export default function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Authenticated members have no reason to see the activation screens.
-  if (hasSession && isActivationPath(pathname)) {
+  // Authenticated members have no reason to see the auth screens.
+  if (hasSession && isAuthPath(pathname)) {
     return NextResponse.redirect(new URL('/member', request.url))
   }
 
-  // Activation flow is public for unauthenticated visitors.
-  if (isActivationPath(pathname)) {
+  // Auth flows are public for unauthenticated visitors.
+  if (isAuthPath(pathname)) {
     return NextResponse.next()
   }
 

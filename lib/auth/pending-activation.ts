@@ -16,7 +16,7 @@ export async function setPendingActivation(memberId: string) {
     httpOnly: true,
     secure: isSecureInProduction(),
     sameSite: 'lax',
-    path: '/activate',
+    path: '/',
     maxAge: PENDING_ACTIVATION_SECONDS,
   })
 }
