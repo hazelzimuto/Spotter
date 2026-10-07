@@ -263,6 +263,16 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Dynamically renders the comprehensive, NDPA 2023-compliant `LegalView` modal dialog overlay (`activeView="terms"`) on top of the view.
   - Preserves all entered sign-up inputs in state when the user closes the legal overlay and returns to the form.
 
+### Phase 22: Development Auth Store & Graceful Database URL Fallback
+- **Database Connection Guard**:
+  - Exported `hasDatabaseUrl = Boolean(process.env.DATABASE_URL)` in `lib/db.ts` and guarded `PrismaClient` initialization so missing environment variables never cause premature initialization crashes.
+- **In-Memory Development Store**:
+  - Implemented `lib/auth/dev-store.ts` using `globalThis` maps to safely persist newly created members and active sessions across hot reloads during development when `DATABASE_URL` is unset.
+- **Seamless Local Sign-Up Flow**:
+  - Updated `submitSignUp`, `submitSignIn`, `submitActivationCode`, and `submitPin` in `app/auth/actions.ts` to branch seamlessly: saving to `dev-store` when local database environment variables are missing, and utilizing Prisma ORM whenever `DATABASE_URL` is present.
+  - Updated `createSession`, `getSession`, and `destroySession` in `lib/auth/session.ts` to maintain identical cookie and device linkage logic across both modes.
+  - Fixes the `PrismaClientInitializationError: Environment variable not found: DATABASE_URL` runtime error, allowing sign-ups to immediately establish member sessions and load the `/member` dashboard.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

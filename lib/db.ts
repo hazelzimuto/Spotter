@@ -10,8 +10,18 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-export const db = globalForPrisma.prisma ?? new PrismaClient()
+export const hasDatabaseUrl = Boolean(process.env.DATABASE_URL)
 
-if (process.env.NODE_ENV !== 'production') {
+export const db: PrismaClient = hasDatabaseUrl
+  ? (globalForPrisma.prisma ?? new PrismaClient())
+  : (new Proxy({} as PrismaClient, {
+      get(_target, prop) {
+        throw new Error(
+          `Prisma query db.${String(prop)} was called without DATABASE_URL configured in the environment.`
+        )
+      },
+    }))
+
+if (process.env.NODE_ENV !== 'production' && hasDatabaseUrl) {
   globalForPrisma.prisma = db
 }

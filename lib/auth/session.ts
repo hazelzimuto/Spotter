@@ -1,12 +1,18 @@
 import { randomBytes, createHash } from 'node:crypto'
 import { cookies } from 'next/headers'
-import { db } from '@/lib/db'
+import { db, hasDatabaseUrl } from '@/lib/db'
 import {
   DEVICE_COOKIE,
   isSecureInProduction,
   SESSION_COOKIE,
   TEN_YEARS_SECONDS,
 } from '@/lib/auth/cookies'
+import {
+  saveDevSession,
+  findDevSessionByTokenHash,
+  revokeDevSessionByTokenHash,
+  findDevMemberById,
+} from './dev-store'
 
 /**
  * FR-6 session handling.
@@ -52,21 +58,30 @@ export async function getOrCreateDeviceId(): Promise<string> {
  * somehow survived.
  */
 export async function createSession(memberId: string, deviceId: string) {
-  await db.session.updateMany({
-    where: { memberId, revokedAt: null },
-    data: { revokedAt: new Date() },
-  })
-
   const token = randomToken()
+  const tokenHash = hashToken(token)
 
-  await db.session.create({
-    data: {
+  if (hasDatabaseUrl) {
+    await db.session.updateMany({
+      where: { memberId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    })
+
+    await db.session.create({
+      data: {
+        memberId,
+        deviceId,
+        tokenHash,
+        lastLoginAt: new Date(),
+      },
+    })
+  } else {
+    saveDevSession({
       memberId,
       deviceId,
-      tokenHash: hashToken(token),
-      lastLoginAt: new Date(),
-    },
-  })
+      tokenHash,
+    })
+  }
 
   const cookieStore = await cookies()
   cookieStore.set(SESSION_COOKIE, token, {
@@ -96,23 +111,44 @@ export async function getSession(): Promise<AuthenticatedMember | null> {
   const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null
 
-  const session = await db.session.findUnique({
-    where: { tokenHash: hashToken(token) },
-    include: { member: true },
-  })
+  const tokenHash = hashToken(token)
 
-  if (!session || session.revokedAt) return null
+  if (hasDatabaseUrl) {
+    const session = await db.session.findUnique({
+      where: { tokenHash },
+      include: { member: true },
+    })
 
-  // A null or mismatched deviceId means staff force-unlinked this member.
-  if (!session.member.deviceId || session.member.deviceId !== session.deviceId) {
-    return null
-  }
+    if (!session || session.revokedAt) return null
 
-  return {
-    memberId: session.memberId,
-    deviceId: session.deviceId,
-    tier: session.member.tier,
-    fullName: session.member.fullName,
+    // A null or mismatched deviceId means staff force-unlinked this member.
+    if (!session.member.deviceId || session.member.deviceId !== session.deviceId) {
+      return null
+    }
+
+    return {
+      memberId: session.memberId,
+      deviceId: session.deviceId,
+      tier: session.member.tier,
+      fullName: session.member.fullName,
+    }
+  } else {
+    const session = findDevSessionByTokenHash(tokenHash)
+    if (!session) return null
+
+    const member = findDevMemberById(session.memberId)
+    if (!member) return null
+
+    if (!member.deviceId || member.deviceId !== session.deviceId) {
+      return null
+    }
+
+    return {
+      memberId: session.memberId,
+      deviceId: session.deviceId,
+      tier: member.tier,
+      fullName: member.fullName,
+    }
   }
 }
 
@@ -122,10 +158,15 @@ export async function destroySession() {
   const token = cookieStore.get(SESSION_COOKIE)?.value
 
   if (token) {
-    await db.session.updateMany({
-      where: { tokenHash: hashToken(token), revokedAt: null },
-      data: { revokedAt: new Date() },
-    })
+    const tokenHash = hashToken(token)
+    if (hasDatabaseUrl) {
+      await db.session.updateMany({
+        where: { tokenHash, revokedAt: null },
+        data: { revokedAt: new Date() },
+      })
+    } else {
+      revokeDevSessionByTokenHash(tokenHash)
+    }
   }
 
   cookieStore.delete(SESSION_COOKIE)
