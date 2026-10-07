@@ -226,6 +226,13 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Displays *"Password must be at least 6 characters"* and *"This field must not be empty"* with `<CautionIcon />` and error outline when invalid.
   - Securely hashed with bcrypt and persisted in `submitSignUp`.
 
+### Phase 18: Dynamic Password Hint on Typing
+- **Hidden by Default**:
+  - The password requirement hint (*"Must be at least 6 characters."*) is hidden when the sign-up form initially loads (`password === ''`).
+- **Interactive Inline Appearance**:
+  - Dynamically renders as inline text under the password field the moment the user types their first character (`password.length > 0`).
+  - If the user leaves the field without meeting requirements, transitions cleanly into the appropriate inline error message (*"This field must not be empty"* or *"Password must be at least 6 characters"*) with `<CautionIcon />` and error outline.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

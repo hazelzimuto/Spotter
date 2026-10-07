@@ -268,11 +268,11 @@ function SignUpView({
   const [memberNumber, setMemberNumber] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [passwordBlurred, setPasswordBlurred] = useState(false)
 
   const [nameTouched, setNameTouched] = useState(false)
   const [emailTouched, setEmailTouched] = useState(false)
   const [memberNumberTouched, setMemberNumberTouched] = useState(false)
-  const [passwordTouched, setPasswordTouched] = useState(false)
 
   const [state, formAction] = useActionState<AuthFormState, FormData>(submitSignUp, {})
 
@@ -321,8 +321,8 @@ function SignUpView({
     return null
   }
 
-  function getPasswordError(value: string, touched: boolean): string | null {
-    if (!touched) return null
+  function getPasswordError(value: string, blurred: boolean): string | null {
+    if (!blurred) return null
     if (value.trim() === '') {
       return 'This field must not be empty'
     }
@@ -338,8 +338,9 @@ function SignUpView({
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
   const memberNumberError = getMemberNumberError(memberNumber, memberNumberTouched)
   const isMemberNumberValid = memberNumber.trim().length === 6
-  const passwordError = getPasswordError(password, passwordTouched)
+  const passwordError = getPasswordError(password, passwordBlurred)
   const isPasswordValid = password.length >= 6
+  const showPasswordHint = password.length > 0 && !passwordError
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (
@@ -352,7 +353,7 @@ function SignUpView({
       setNameTouched(true)
       setEmailTouched(true)
       setMemberNumberTouched(true)
-      setPasswordTouched(true)
+      setPasswordBlurred(true)
     }
   }
 
@@ -488,14 +489,17 @@ function SignUpView({
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value)
-                if (!passwordTouched) setPasswordTouched(true)
               }}
-              onBlur={() => setPasswordTouched(true)}
+              onBlur={() => setPasswordBlurred(true)}
               required
               className={`${styles.input} ${styles.passwordInput} ${passwordError ? styles.inputError : ''}`}
               aria-invalid={passwordError ? true : undefined}
               aria-describedby={
-                passwordError ? 'signup-password-error' : 'signup-password-help'
+                passwordError
+                  ? 'signup-password-error'
+                  : showPasswordHint
+                  ? 'signup-password-help'
+                  : undefined
               }
             />
             <button
@@ -545,11 +549,11 @@ function SignUpView({
               <CautionIcon />
               <span>{passwordError}</span>
             </p>
-          ) : (
+          ) : showPasswordHint ? (
             <p id="signup-password-help" className={styles.helper}>
               Must be at least 6 characters.
             </p>
-          )}
+          ) : null}
         </div>
 
         <div className={styles.actions}>
