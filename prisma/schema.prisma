@@ -40,8 +40,8 @@ model Member {
   id       String @id @default(uuid())
   fullName     String
   phone        String?
-  email        String?
-  memberNumber String?
+  email        String? @unique
+  memberNumber String? @unique
   tier         Tier   @default(BASIC)
 
   expiryDate DateTime
@@ -57,6 +57,11 @@ model Member {
   passwordHash   String?
   deviceId       String?
 
+  // Email verification (6-digit randomBytes code)
+  emailVerified             Boolean   @default(false)
+  verificationCode          String?
+  verificationCodeExpiresAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -67,53 +72,63 @@ model Member {
   questions       QuestionLog[]
 
   sessions Session[]
+
+  @@index([deviceId])
 }
 
 // PRIVATE MODEL: Fetched by memberId only
 model Attendance {
   id        String   @id @default(uuid())
   memberId  String
-  member    Member   @relation(fields: [memberId], references: [id])
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
   checkInAt DateTime @default(now())
   isManual  Boolean  @default(false)
   staffId   String? // If manual, who recorded it
+
+  @@index([memberId])
 }
 
 // PRIVATE MODEL: Fetched by memberId only
 model Payment {
   id        String        @id @default(uuid())
   memberId  String
-  member    Member        @relation(fields: [memberId], references: [id])
+  member    Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
   amount    Int // Stored in kobo
   method    PaymentMethod
   reference String        @unique
   staffId   String? // If cash/transfer/pos, who recorded it
   createdAt DateTime      @default(now())
+
+  @@index([memberId])
 }
 
 // PRIVATE MODEL: Fetched by memberId only
 model PaymentAttempt {
   id        String        @id @default(uuid())
   memberId  String
-  member    Member        @relation(fields: [memberId], references: [id])
+  member    Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
   amount    Int
   reference String        @unique
   status    PaymentStatus @default(PENDING)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+
+  @@index([memberId])
 }
 
 // PRIVATE MODEL: Fetched by memberId only
 model QuestionLog {
   id          String   @id @default(uuid())
   memberId    String
-  member      Member   @relation(fields: [memberId], references: [id])
+  member      Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
   question    String
   tierAtTime  Tier
   wasAnswered Boolean
   cardId      String? // The card that answered it, if any
   isWrong     Boolean  @default(false)
   createdAt   DateTime @default(now())
+
+  @@index([memberId])
 }
 
 model Card {
@@ -131,11 +146,13 @@ model Card {
 model CardVersion {
   id        String                       @id @default(uuid())
   cardId    String
-  card      Card                         @relation(fields: [cardId], references: [id])
+  card      Card                         @relation(fields: [cardId], references: [id], onDelete: Cascade)
   content   String
   authorId  String
   embedding Unsupported("vector(1536)")?
   createdAt DateTime                     @default(now())
+
+  @@index([cardId])
 }
 
 model CheckInCode {
@@ -170,7 +187,7 @@ model Staff {
 model Session {
   id       String @id @default(uuid())
   memberId String
-  member   Member @relation(fields: [memberId], references: [id])
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   deviceId String
 

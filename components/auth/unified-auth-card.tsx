@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * UnifiedAuthCard — Collapses member authentication forms into conditional views.
+ * UnifiedAuthCard: Collapses member authentication forms into conditional views.
  *
  * Views:
  * - 'signin': PIN entry for already linked devices.
@@ -187,10 +187,11 @@ function SignInView({
 
   function getPasswordError(value: string, touched: boolean): string | null {
     if (!touched) return null
-    if (value.trim() === '') {
+    const trimmed = value.trim()
+    if (trimmed === '') {
       return 'This field must not be empty'
     }
-    if (value.length < 6) {
+    if (trimmed.length < 6) {
       return 'Password must be at least 6 characters'
     }
     return null
@@ -199,7 +200,7 @@ function SignInView({
   const memberNumberError = getMemberNumberError(memberNumber, memberNumberTouched)
   const isMemberNumberValid = memberNumber.trim().length === 6
   const passwordError = getPasswordError(password, passwordTouched)
-  const isPasswordValid = password.length >= 6
+  const isPasswordValid = password.trim().length >= 6
 
   const isFormComplete =
     isMemberNumberValid &&
@@ -277,7 +278,10 @@ function SignInView({
               onChange={(e) => {
                 setPassword(e.target.value)
               }}
-              onBlur={() => setPasswordTouched(true)}
+              onBlur={() => {
+                setPassword((prev) => prev.trim())
+                setPasswordTouched(true)
+              }}
               required
               className={`${styles.input} ${styles.passwordInput} ${passwordError ? styles.inputError : ''}`}
               aria-invalid={passwordError ? true : undefined}
@@ -437,10 +441,11 @@ function SignUpView({
 
   function getPasswordError(value: string, blurred: boolean): string | null {
     if (!blurred) return null
-    if (value.trim() === '') {
+    const trimmed = value.trim()
+    if (trimmed === '') {
       return 'This field must not be empty'
     }
-    if (value.length < 6) {
+    if (trimmed.length < 6) {
       return 'Password must be at least 6 characters'
     }
     return null
@@ -453,8 +458,8 @@ function SignUpView({
   const memberNumberError = getMemberNumberError(memberNumber, memberNumberTouched)
   const isMemberNumberValid = memberNumber.trim().length === 6
   const passwordError = getPasswordError(password, passwordBlurred)
-  const isPasswordValid = password.length >= 6
-  const showPasswordHint = password.length > 0 && !passwordError
+  const isPasswordValid = password.trim().length >= 6
+  const showPasswordHint = password.trim().length > 0 && !passwordError
 
   const isFormComplete =
     isNameValid &&
@@ -539,10 +544,13 @@ function SignUpView({
             placeholder="e.g. alex@example.com"
             value={email}
             onChange={(e) => {
-              setEmail(e.target.value)
+              setEmail(e.target.value.toLowerCase())
               if (!emailTouched) setEmailTouched(true)
             }}
-            onBlur={() => setEmailTouched(true)}
+            onBlur={() => {
+              setEmail((prev) => prev.trim().toLowerCase())
+              setEmailTouched(true)
+            }}
             required
             className={`${styles.input} ${emailError ? styles.inputError : ''}`}
             aria-invalid={emailError ? true : undefined}
@@ -602,7 +610,10 @@ function SignUpView({
               onChange={(e) => {
                 setPassword(e.target.value)
               }}
-              onBlur={() => setPasswordBlurred(true)}
+              onBlur={() => {
+                setPassword((prev) => prev.trim())
+                setPasswordBlurred(true)
+              }}
               required
               className={`${styles.input} ${styles.passwordInput} ${passwordError ? styles.inputError : ''}`}
               aria-invalid={passwordError ? true : undefined}
@@ -910,7 +921,10 @@ function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
               setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
               if (!pinTouched) setPinTouched(true)
             }}
-            onBlur={() => setPinTouched(true)}
+            onBlur={() => {
+              setPin((prev) => prev.trim())
+              setPinTouched(true)
+            }}
             required
             className={`${styles.input} ${styles.pinInput} ${isPinEmpty ? styles.inputError : ''}`}
             aria-invalid={isPinEmpty ? true : state?.error ? true : undefined}
@@ -945,7 +959,10 @@ function PinSetupView({ onBackToActivate }: { onBackToActivate: () => void }) {
               setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))
               if (!confirmTouched) setConfirmTouched(true)
             }}
-            onBlur={() => setConfirmTouched(true)}
+            onBlur={() => {
+              setConfirmPin((prev) => prev.trim())
+              setConfirmTouched(true)
+            }}
             required
             className={`${styles.input} ${styles.pinInput} ${isConfirmEmpty ? styles.inputError : ''}`}
             aria-invalid={isConfirmEmpty ? true : undefined}

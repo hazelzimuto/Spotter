@@ -10,6 +10,9 @@ export type DevMember = {
   passwordHash?: string | null
   deviceId?: string | null
   activationCode?: string | null
+  emailVerified?: boolean
+  verificationCode?: string | null
+  verificationCodeExpiresAt?: Date | null
   createdAt: Date
   expiryDate: Date
 }
@@ -50,6 +53,9 @@ export function saveDevMember(data: {
   passwordHash?: string | null
   deviceId?: string | null
   activationCode?: string | null
+  emailVerified?: boolean
+  verificationCode?: string | null
+  verificationCodeExpiresAt?: Date | null
   expiryDate?: Date
 }): DevMember {
   const id = `dev-mem-${randomUUID()}`
@@ -58,19 +64,47 @@ export function saveDevMember(data: {
   const member: DevMember = {
     id,
     fullName: data.fullName,
-    email: data.email ?? null,
+    email: data.email ? data.email.trim().toLowerCase() : null,
     memberNumber: data.memberNumber ?? null,
     tier: data.tier ?? 'BASIC',
     pinHash: data.pinHash ?? null,
     passwordHash: data.passwordHash ?? null,
     deviceId: data.deviceId ?? null,
     activationCode: data.activationCode ?? null,
+    emailVerified: data.emailVerified ?? false,
+    verificationCode: data.verificationCode ?? null,
+    verificationCodeExpiresAt: data.verificationCodeExpiresAt ?? null,
     createdAt: new Date(),
     expiryDate,
   }
 
   membersMap.set(id, member)
   return member
+}
+
+export function updateDevMemberEmailVerification(id: string, verified: boolean): boolean {
+  const member = membersMap.get(id)
+  if (!member) return false
+  member.emailVerified = verified
+  if (verified) {
+    member.verificationCode = null
+    member.verificationCodeExpiresAt = null
+  }
+  membersMap.set(id, member)
+  return true
+}
+
+export function setDevMemberVerificationCode(
+  id: string,
+  code: string,
+  expiresAt: Date,
+): boolean {
+  const member = membersMap.get(id)
+  if (!member) return false
+  member.verificationCode = code
+  member.verificationCodeExpiresAt = expiresAt
+  membersMap.set(id, member)
+  return true
 }
 
 export function findDevMemberById(id: string): DevMember | null {
@@ -98,6 +132,16 @@ export function findDevMemberByActivationCode(code: string): DevMember | null {
 export function findDevMemberByMemberNumber(memberNumber: string): DevMember | null {
   for (const m of membersMap.values()) {
     if (m.memberNumber === memberNumber) {
+      return m
+    }
+  }
+  return null
+}
+
+export function findDevMemberByEmail(email: string): DevMember | null {
+  const normalized = email.trim().toLowerCase()
+  for (const m of membersMap.values()) {
+    if (m.email?.toLowerCase().trim() === normalized) {
       return m
     }
   }

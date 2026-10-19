@@ -1,10 +1,43 @@
 /**
- * Shared input rules for the FR-6 auth screens.
- *
- * Code format is not specified anywhere in the PRD, so it is deliberately
- * permissive: any 4-20 character alphanumeric code is accepted. Tighten this
- * once staff settle on a format.
+ * Shared input rules and Zod validation for Spotter auth forms.
  */
+import {
+  CODE_PATTERN,
+  PIN_PATTERN,
+  MEMBER_NUMBER_PATTERN,
+  EMAIL_PATTERN,
+  normaliseCode,
+  normaliseEmail,
+  formDataToObject,
+  signUpSchema,
+  signInSchema,
+  activationCodeSchema,
+  pinSetupSchema,
+  validateWithZod,
+  type SignUpInput,
+  type SignInInput,
+  type ActivationCodeInput,
+  type PinSetupInput,
+} from '@/lib/validation/auth'
+
+export {
+  CODE_PATTERN,
+  PIN_PATTERN,
+  MEMBER_NUMBER_PATTERN,
+  EMAIL_PATTERN,
+  normaliseCode,
+  normaliseEmail,
+  formDataToObject,
+  signUpSchema,
+  signInSchema,
+  activationCodeSchema,
+  pinSetupSchema,
+  validateWithZod,
+  type SignUpInput,
+  type SignInInput,
+  type ActivationCodeInput,
+  type PinSetupInput,
+}
 
 export type FieldErrors = {
   activationCode?: string
@@ -12,22 +45,22 @@ export type FieldErrors = {
   confirmPin?: string
 }
 
-const CODE_PATTERN = /^[A-Za-z0-9]{4,20}$/
-
-// .agent/rules/thresholds.md rule 4: the auth PIN is exactly 4 digits.
-const PIN_PATTERN = /^[0-9]{4}$/
-
-export function normaliseCode(raw: FormDataEntryValue | null) {
-  return typeof raw === 'string' ? raw.trim().toUpperCase() : ''
+export function validateEmail(raw: FormDataEntryValue | string | null | undefined) {
+  const email = normaliseEmail(raw)
+  if (!email) return { email, error: 'This field must not be empty' }
+  const isEmailValid = EMAIL_PATTERN.test(email)
+  if (!isEmailValid) {
+    return { email, error: 'Enter a valid email address' }
+  }
+  return { email, error: null }
 }
 
 export function validateActivationCode(raw: FormDataEntryValue | null) {
-  const code = normaliseCode(raw)
-  if (!code) return { code, error: 'Enter the code from the front desk.' }
-  if (!CODE_PATTERN.test(code)) {
-    return { code, error: 'That code does not look right. Check it and try again.' }
+  const result = validateWithZod(activationCodeSchema, { activationCode: raw })
+  if (!result.success) {
+    return { code: normaliseCode(raw), error: result.error }
   }
-  return { code, error: null }
+  return { code: result.data.activationCode, error: null }
 }
 
 export function validatePin(raw: FormDataEntryValue | null) {

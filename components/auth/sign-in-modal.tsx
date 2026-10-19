@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * SignInModal — Landing page entry-point for members.
+ * SignInModal: Landing page entry-point for members.
  *
  * Sign-up tab: routes the member to /activate where they enter the
  *   one-time activation code issued by staff (FR-6, step 1).
@@ -125,7 +125,7 @@ export function SignInModal({ onClose, initialTab = 'signin' }: SignInModalProps
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Sign-in form — Member number & Password
+   Sign-in form: Member number & Password
    ───────────────────────────────────────────────────────────── */
 function SignInForm() {
   const [memberNumber, setMemberNumber] = useState('')
@@ -149,10 +149,11 @@ function SignInForm() {
 
   function getPasswordError(value: string, touched: boolean): string | null {
     if (!touched) return null
-    if (value.trim() === '') {
+    const trimmed = value.trim()
+    if (trimmed === '') {
       return 'This field must not be empty'
     }
-    if (value.length < 6) {
+    if (trimmed.length < 6) {
       return 'Password must be at least 6 characters'
     }
     return null
@@ -161,7 +162,7 @@ function SignInForm() {
   const memberNumberError = getMemberNumberError(memberNumber, memberNumberTouched)
   const isMemberNumberValid = memberNumber.trim().length === 6
   const passwordError = getPasswordError(password, passwordTouched)
-  const isPasswordValid = password.length >= 6
+  const isPasswordValid = password.trim().length >= 6
 
   const isFormComplete =
     isMemberNumberValid &&
@@ -247,7 +248,10 @@ function SignInForm() {
             onChange={(e) => {
               setPassword(e.target.value)
             }}
-            onBlur={() => setPasswordTouched(true)}
+            onBlur={() => {
+              setPassword((prev) => prev.trim())
+              setPasswordTouched(true)
+            }}
             className={`${styles.modalInput} ${styles.passwordInput} ${passwordError ? styles.modalInputError : ''}`}
             aria-describedby={passwordError ? 'modal-password-error' : undefined}
             aria-invalid={passwordError ? true : undefined}
@@ -325,7 +329,7 @@ function SignInForm() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Sign-up panel — routes to /auth?view=signup
+   Sign-up panel: routes to /auth?view=signup
    ───────────────────────────────────────────────────────────── */
 function SignUpPanel() {
   return (
@@ -348,7 +352,7 @@ function SignUpPanel() {
       <p className={styles.modalFootnote}>
         Use the{' '}
         <strong style={{ color: 'var(--color-on-surface)' }}>Sign in</strong>{' '}
-        tab above to enter your PIN.
+        tab above to enter your password.
       </p>
     </div>
   )

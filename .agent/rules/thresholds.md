@@ -24,3 +24,12 @@ Daily whiteboard check in code and authentication PIN must be exactly `4 digits`
 ### Rule 5
 Gemini free tier requests must not exceed `15 requests per minute`.
 **Reason**: Exceeding Gemini rate limits returns HTTP 429 errors and halts application responses.
+
+### Rule 6
+Form submission rate limit is set to a maximum of `5 requests` per client IP address across a `5 to 10 minute` sliding window.
+**Reason**: Protects authentication endpoints, database resources, and computationally expensive bcrypt hashing against automated brute-force attacks and denial-of-service attempts.
+
+### Rule 7
+Email verification code must be exactly `6 digits` generated using cryptographically secure `randomBytes`, valid for `24 hours`. Code verification attempts are limited to `5 attempts per 10 minutes` and resends to `3 per 10 minutes` with a `60-second` client cooldown.
+**Reason**: Provides a uniform, zero-bias numeric token for quick member entry while preventing brute-force code enumeration and email dispatch abuse.
+

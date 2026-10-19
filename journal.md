@@ -294,6 +294,139 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Updated `submitSignIn` in `app/auth/actions.ts` to validate the 6-digit member number and password, check password hashes using `verifyPin`, and update device binding upon successful login.
   - Added `findDevMemberByMemberNumber` to `lib/auth/dev-store.ts` for in-memory dev store authentication parity.
 
+### Phase 25: Database Model Design Enhancements & Integrity Constraints
+- **Member Model Uniqueness & Indexing**:
+  - Added `@unique` constraints to `Member.email` and `Member.memberNumber` in `prisma/schema.prisma` to guarantee that no duplicate accounts can be created with the same credentials.
+  - Added index `@@index([deviceId])` to optimize single-device lookup and session binding.
+- **Relational Integrity & Cascade Deletes**:
+  - Configured `onDelete: Cascade` across all member-owned child relations: `Attendance`, `Payment`, `PaymentAttempt`, `QuestionLog`, and `Session`. Deleting or managing test members in Prisma Studio now cleanly cleans up all associated records without foreign key constraint violations.
+  - Configured `onDelete: Cascade` on `CardVersion` linked to `Card`.
+  - Added explicit foreign key index lookups (`@@index([memberId])`, `@@index([cardId])`) across all child tables to accelerate relational queries.
+- **P2002 Constraint Handling in Auth Actions**:
+  - Updated `submitSignUp` in `app/auth/actions.ts` to detect Prisma code `P2002` violations and surface specific, user-friendly error messages (*"An account with this member number already exists"* or *"An account with this email address already exists"*) directly in the UI.
+- **Prisma Client Regeneration**:
+  - Regenerated Prisma Client bindings via `npx prisma generate` and verified clean compilation across the TypeScript project.
+
+### Phase 26: Nodemailer Email Service & Welcome Email Notification
+- **Nodemailer Setup**:
+  - Installed `nodemailer` and `@types/nodemailer`.
+  - Configured SMTP environment variables (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) in `.env` and `.env.example`.
+- **Mailer Module (`lib/email/mailer.ts`)**:
+  - Built a resilient transporter creator (`getMailTransporter`) and generic `sendEmail` sender that logs cleanly to console in dev mode when SMTP is unset, avoiding crashes.
+  - Implemented branded HTML/text `sendWelcomeEmail` template delivering the member's 6-digit Member Number and portal access instructions.
+- **Sign-Up Integration**:
+  - Wired `sendWelcomeEmail` into `submitSignUp` (`app/auth/actions.ts`) to asynchronously dispatch the welcome notification without blocking the client redirect to `/member`.
+
+### Phase 27: Nodemailer Architectural Enforcement & Formal Rules
+- **Stack & Folder Map Modernization**:
+  - Added Nodemailer to Spotter's official technology stack in `AGENTS.md`.
+  - Registered `lib/email/mailer.ts` in the folder map and established the mandatory rule: *"Always use Nodemailer via lib/email/mailer.ts to send emails; do not introduce alternative mail libraries."*
+- **Rules Documentation (`.agent/rules/email.md`)**:
+  - Created `.agent/rules/email.md` defining strict constraints:
+    1. All outgoing emails must exclusively route through `nodemailer` via `lib/email/mailer.ts`.
+    2. Email dispatching must execute asynchronously to prevent blocking Server Action responses.
+    3. All transactional templates must provide responsive HTML and fallback plain-text using brand tokens.
+    4. Safe fallback logging when credentials are unset in local development environments.
+
+### Phase 28: Human Tone & Punctuation Cleanup
+- **Removed Em-Dashes & AI-like Punctuation**:
+  - Replaced all em-dashes (`—`) across email templates (`lib/email/mailer.ts`), the landing page (`app/page.tsx`), and client interactive islands (`components/landing/landing-client.tsx`, `components/auth/sign-in-modal.tsx`).
+  - Rewrote copy with natural, human phrasing (e.g. *"Spotter: Your gym, at your fingertips"*, *"Get started for free"*, *"answers grounded in approved gym records with no guesswork"*).
+  - Cleaned email sign-off to natural closing (*"The Spotter Gym Team"*).
+- **Parity in Auth Modal**:
+  - Updated helper footnote in `components/auth/sign-in-modal.tsx` to reference password entry matching the modern auth layout.
+
+### Phase 29: Email Input Normalization to Lowercase
+- **Client-Side Real-Time Normalization**:
+  - Updated the email input field in `SignUpView` (`components/auth/unified-auth-card.tsx`) to immediately transform any uppercase input into lowercase via `setEmail(e.target.value.toLowerCase())` as the user types.
+- **Server-Side Normalization**:
+  - Added `.toLowerCase()` to `formData.get('email')` extraction in `submitSignUp` (`app/auth/actions.ts`), guaranteeing all email records in the Supabase PostgreSQL database and Nodemailer recipient headers are permanently lowercase.
+
+### Phase 30: Universal Email Normalization Across All Forms & Handlers
+- **Validation Utility (`lib/auth/validation.ts`)**:
+  - Added centralized `normaliseEmail(raw)` and `validateEmail(raw)` helper functions that trim whitespace and convert all email addresses to lowercase.
+- **Client Form Input & Blur (`components/auth/unified-auth-card.tsx`)**:
+  - Enhanced email input handling to guarantee instant lowercase normalization during typing and complete whitespace trimming and lowercasing on blur.
+- **Server Action & Validation (`app/auth/actions.ts`)**:
+  - Refactored `submitSignUp` to use centralized `validateEmail`, ensuring all incoming form submissions are consistently normalized before database persistence.
+- **Development Store Normalization (`lib/auth/dev-store.ts`)**:
+  - Normalized email storage in `saveDevMember` and added `findDevMemberByEmail` using case-insensitive matching.
+- **Nodemailer Dispatch Normalization (`lib/email/mailer.ts`)**:
+  - Sanitized recipient email addresses in `sendEmail` and `sendWelcomeEmail` with `.toLowerCase().trim()` to prevent SMTP casing discrepancies.
+
+### Phase 31: Zod Server-Side Form Validation Across All Actions
+- **Zod Installation & Core Schemas (`lib/validation/auth.ts`)**:
+  - Installed `zod` and established declarative schemas grounded in PRD thresholds:
+    1. `signUpSchema`: Validates 2+ names, normalized lowercase email, 6-digit member number, 6+ character password, and terms agreement.
+    2. `signInSchema`: Validates 6-digit member number and 6+ character password.
+    3. `activationCodeSchema`: Validates 4-20 alphanumeric characters, normalized to uppercase.
+    4. `pinSetupSchema`: Validates exactly 4-digit numeric PIN with matching confirmation.
+- **Unified Validation Helper (`validateWithZod`)**:
+  - Built generic `validateWithZod` parser that cleanly converts Next.js `FormData` to typed values, formats first-issue error messages, and generates structured field-level errors.
+- **Server Action Refactoring (`app/auth/actions.ts`)**:
+  - Replaced imperative manual validation with declarative `validateWithZod` calls across `submitSignUp`, `submitSignIn`, `submitActivationCode`, and `submitPin`.
+- **Backward Compatibility (`lib/auth/validation.ts`)**:
+  - Re-exported all Zod schemas, types, and helpers from `lib/validation/auth.ts` while preserving legacy utility signatures.
+
+### Phase 32: Password & PIN Field Trimming Across All Forms
+- **Zod Schema Trimming (`lib/validation/auth.ts`)**:
+  - Added `.transform((val) => val.trim())` to `password` in both `signUpSchema` and `signInSchema`, guaranteeing all passwords submitted to server actions have leading/trailing whitespace automatically stripped.
+- **Client Form Input & Blur (`components/auth/unified-auth-card.tsx`)**:
+  - In `SignInView`: Updated `onBlur` to automatically trim password state, updated `isPasswordValid` check and validation error handler to evaluate trimmed length.
+  - In `SignUpView`: Added whitespace trimming on blur for password input, updated minimum length validation and hint checks against trimmed values.
+  - In `PinSetupView`: Added whitespace trimming on blur for both PIN and confirm PIN inputs.
+- **Sign-In Modal Form (`components/auth/sign-in-modal.tsx`)**:
+  - Added password trimming on blur and updated error checking to evaluate trimmed values.
+- **Legacy PIN Setup Form (`components/auth/pin-form.tsx`)**:
+  - Added whitespace trimming on blur for both PIN and confirm PIN inputs.
+
+### Phase 33: Server-Side IP Rate Limiting Across All Forms
+- **Rate Limiter Module (`lib/rate-limit.ts`)**:
+  - Implemented an in-memory sliding window rate limiter keyed by client IP address.
+  - Added header resolution support for reverse proxy environments (`x-forwarded-for`, `x-real-ip`, `cf-connecting-ip`) with local development fallback (`127.0.0.1`).
+  - Added automatic store pruning to prevent memory growth under high traffic.
+- **Form Action Integration (`app/auth/actions.ts`)**:
+  - Attached rate limit checks at the very beginning of all server actions:
+    1. `submitSignUp`: 5 attempts per 10 minutes per IP.
+    2. `submitSignIn`: 5 attempts per 5 minutes per IP.
+    3. `submitActivationCode`: 5 attempts per 10 minutes per IP.
+    4. `submitPin`: 5 attempts per 5 minutes per IP.
+  - Rate limiting executes before database queries and CPU-intensive bcrypt hashing to prevent resource exhaustion attacks.
+- **Threshold Rules (`.agent/rules/thresholds.md`)**:
+  - Added Rule 6 defining operational limits and windows for form submissions.
+
+### Phase 34: Breached Password Protection with HaveIBeenPwned API
+- **HIBP k-Anonymity Service (`lib/validation/pwned.ts`)**:
+  - Implemented `isPasswordBreached(password)` querying Troy Hunt's official HIBP Pwned Passwords Range API.
+  - **k-Anonymity Privacy Guarantee**: Computes SHA-1 hash locally, sends only the 5-character prefix to the API, and evaluates matching suffixes locally. The candidate password never leaves the server.
+  - Added `Add-Padding: true` header to prevent response-length analysis.
+  - Configured 2.5s timeout with graceful fallback (`fail open`) on network timeouts/errors to ensure registration is never disrupted if the external API experiences outages.
+- **Sign-Up Integration (`app/auth/actions.ts`)**:
+  - Connected `isPasswordBreached` into `submitSignUp` right after schema validation.
+  - If the password exists in known data breaches, registration stops and returns: *"This password has appeared in a data breach. Please choose a more secure password."*
+
+### Phase 35: Email Verification System (randomBytes & Dashboard Banner)
+- **Database & Dev Store Synchronization**:
+  - Added `emailVerified Boolean @default(false)`, `verificationCode String?`, and `verificationCodeExpiresAt DateTime?` to `Member` in `prisma/schema.prisma`.
+  - Pushed schema changes to PostgreSQL via `npx prisma db push` and regenerated Prisma Client.
+  - Mirrored fields and helpers (`updateDevMemberEmailVerification`, `setDevMemberVerificationCode`, `findDevMemberById`) in `lib/auth/dev-store.ts`.
+- **Cryptographic Code Generation (`lib/auth/email-verification.ts`)**:
+  - Implemented `generateEmailVerificationCode()` using `node:crypto`'s `randomBytes(4)`.
+  - Uses rejection sampling against `0xFFFFFFFF - (0xFFFFFFFF % 900000)` to completely eliminate modulo bias, generating uniform 6-digit numeric codes between `100000` and `999999`.
+  - Established a 24-hour expiration window (`VERIFICATION_CODE_EXPIRY_MS`).
+- **Nodemailer Branded Template (`lib/email/mailer.ts`)**:
+  - Implemented `sendVerificationEmail({ to, fullName, code })` with a branded Aurora-themed responsive email template displaying the 6-digit code in a high-contrast card with letter-spacing.
+  - Followed AGENTS.md rule requiring Nodemailer via `lib/email/mailer.ts` exclusively.
+- **Auto-Login & Code Dispatch on Sign Up (`app/auth/actions.ts`)**:
+  - Updated `submitSignUp` to generate the 6-digit code, persist it with expiration, automatically log the user in via session cookies, redirect directly to `/member`, and dispatch the verification email in the background.
+- **Server Actions for Verification & Resend (`app/member/actions.ts`)**:
+  - Created `submitEmailVerification`: Protected by IP rate limiting (`RATE_LIMITS.VERIFY_EMAIL`), validates candidate 6-digit code against the stored code and expiration, marks `emailVerified: true`, clears code fields, and revalidates `/member`.
+  - Created `resendEmailVerification`: Protected by IP rate limiting (`RATE_LIMITS.RESEND_VERIFICATION`), generates a fresh code, updates storage, dispatches a new email, and provides client cooldown.
+- **Dashboard Banner Component (`components/member/email-verification-banner.tsx`)**:
+  - Client component rendered conditionally on `/member` when `!session.emailVerified && session.email`.
+  - Features 6-digit numeric input with monospace letter-spaced styling, inline validation feedback, "Verify Email" action, and "Resend code" action with a 60-second cooldown timer.
+  - Transitions into a confirmed state upon successful verification.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

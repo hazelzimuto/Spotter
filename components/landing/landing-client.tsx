@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * LandingClient — islands of interactivity for the landing page.
+ * LandingClient: islands of interactivity for the landing page.
  *
  * Keeps the parent page.tsx as a Server Component by isolating
  * all client-side state (modal open/closed, active tab) here.
@@ -143,7 +143,7 @@ export function NavActions() {
               Your gym, at your fingertips
             </h2>
             <p className={styles.sliderSubtext}>
-              Check your attendance, membership balance, and gym rules in seconds — without waiting at the desk.
+              Check your attendance, membership balance, and gym rules in seconds, without waiting at the desk.
             </p>
           </div>
 
@@ -194,7 +194,7 @@ export function HeroActions() {
           onClick={openSignUp}
           aria-haspopup="dialog"
         >
-          Get started — it's free
+          Get started for free
         </button>
         <button
           id="hero-sign-in-btn"

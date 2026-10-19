@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSession, destroySession } from '@/lib/auth/session'
+import { EmailVerificationBanner } from '@/components/member/email-verification-banner'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 export default async function MemberPage() {
   const session = await getSession()
   if (!session) {
-    redirect('/')
+    redirect('/api/auth/clear-session')
   }
 
   async function handleSignOut() {
@@ -61,6 +62,13 @@ export default async function MemberPage() {
           </button>
         </form>
       </header>
+
+      {session.email && !session.emailVerified && (
+        <EmailVerificationBanner
+          email={session.email}
+          initialVerified={session.emailVerified}
+        />
+      )}
 
       <section
         style={{

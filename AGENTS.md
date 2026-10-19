@@ -38,6 +38,7 @@ Ground every answer exclusively in approved records and enforce safety refusal r
 - Typescript
 - Prisma
 - PostgreSQL
+- Nodemailer for emails
 - Paystack for payments
 - PGVector for vector data
 - Gemini Free tier
@@ -56,6 +57,7 @@ Ground every answer exclusively in approved records and enforce safety refusal r
   - components/auth/auth-shell.tsx: Full-height centered shell used by /activate and /activate/pin.
 - components/landing/: Client islands for the landing page.
   - components/landing/landing-client.tsx: Three client islands (NavActions, HeroActions, CtaActions) that own modal open state so page.tsx stays a Server Component.
+- lib/email/mailer.ts: Centralized Nodemailer service for all transactional emails (welcome notifications, member receipts).
 - prisma/: Prisma ORM schema definition file.
 - rules/: External documentation holding schema details, SQL queries, thresholds, dimensions, pricing, and environment configurations.
 - public/: Static assets and media files.
@@ -64,6 +66,7 @@ Ground every answer exclusively in approved records and enforce safety refusal r
 ## How to work in this codebase
 - Make one change at a time.
 - Ask before adding packages.
+- Always use Nodemailer via lib/email/mailer.ts to send emails; do not introduce alternative mail libraries.
 - Never execute raw SQL commands or schema migrations directly; access data exclusively through Prisma ORM within Next JS Server Actions.
 - List assumptions at the end of every response.
 - Stop and ask when the PRD is silent about anything.

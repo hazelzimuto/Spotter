@@ -106,6 +106,8 @@ export type AuthenticatedMember = {
   deviceId: string
   tier: 'BASIC' | 'PREMIUM'
   fullName: string
+  email?: string | null
+  emailVerified: boolean
 }
 
 /**
@@ -138,6 +140,8 @@ export async function getSession(): Promise<AuthenticatedMember | null> {
           deviceId: session.deviceId,
           tier: session.member.tier,
           fullName: session.member.fullName,
+          email: session.member.email,
+          emailVerified: session.member.emailVerified,
         }
       }
     } catch (err) {
@@ -160,6 +164,8 @@ export async function getSession(): Promise<AuthenticatedMember | null> {
     deviceId: session.deviceId,
     tier: member.tier,
     fullName: member.fullName,
+    email: member.email,
+    emailVerified: member.emailVerified ?? false,
   }
 }
 

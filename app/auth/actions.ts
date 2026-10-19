@@ -16,7 +16,20 @@ import {
   getPendingActivation,
   setPendingActivation,
 } from '@/lib/auth/pending-activation'
-import { validateActivationCode, validatePin } from '@/lib/auth/validation'
+import {
+  signUpSchema,
+  signInSchema,
+  activationCodeSchema,
+  pinSetupSchema,
+  validateWithZod,
+  isPasswordBreached,
+} from '@/lib/validation/auth'
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { sendWelcomeEmail, sendVerificationEmail } from '@/lib/email/mailer'
+import {
+  generateEmailVerificationCode,
+  VERIFICATION_CODE_EXPIRY_MS,
+} from '@/lib/auth/email-verification'
 
 export type AuthFormState = {
   error?: string
@@ -31,46 +44,23 @@ export async function submitSignUp(
   _prev: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const fullName = formData.get('fullName')?.toString()?.trim() || ''
-  if (!fullName) {
-    return { error: 'This field must not be empty' }
-  }
-  if (fullName.length < 2) {
-    return { error: 'Full name must be at least 2 characters.' }
-  }
-  const nameParts = fullName.split(/\s+/).filter(Boolean)
-  if (nameParts.length < 2) {
-    return { error: 'Please enter at least 2 names separated with a space.' }
+  const rateLimit = await checkRateLimit(RATE_LIMITS.SIGN_UP)
+  if (!rateLimit.success) {
+    return { error: rateLimit.error }
   }
 
-  const email = formData.get('email')?.toString()?.trim() || ''
-  if (!email) {
-    return { error: 'This field must not be empty' }
-  }
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
-  if (!isEmailValid) {
-    return { error: 'Enter a valid email address' }
+  const validation = validateWithZod(signUpSchema, formData)
+  if (!validation.success) {
+    return { error: validation.error }
   }
 
-  const memberNumber = formData.get('memberNumber')?.toString()?.trim() || ''
-  if (!memberNumber) {
-    return { error: 'This field must not be empty' }
-  }
-  if (!/^\d{6}$/.test(memberNumber)) {
-    return { error: 'Member number must be exactly 6 numbers.' }
-  }
+  const { fullName, email, memberNumber, password } = validation.data
 
-  const password = formData.get('password')?.toString() || ''
-  if (!password) {
-    return { error: 'This field must not be empty' }
-  }
-  if (password.length < 6) {
-    return { error: 'Password must be at least 6 characters.' }
-  }
-
-  const agreeTerms = formData.get('agreeTerms')
-  if (!agreeTerms || agreeTerms === 'false') {
-    return { error: 'You must agree to the Terms and Conditions to create an account.' }
+  const pwnedCheck = await isPasswordBreached(password)
+  if (pwnedCheck.breached) {
+    return {
+      error: 'This password has appeared in a data breach. Please choose a more secure password.',
+    }
   }
 
   const deviceId = await getOrCreateDeviceId()
@@ -79,6 +69,10 @@ export async function submitSignUp(
   // Initial 30-day membership access window
   const expiryDate = new Date()
   expiryDate.setDate(expiryDate.getDate() + 30)
+
+  // Generate secure 6-digit email verification code via randomBytes
+  const verificationCode = generateEmailVerificationCode()
+  const verificationCodeExpiresAt = new Date(Date.now() + VERIFICATION_CODE_EXPIRY_MS)
 
   let memberId: string | null = null
 
@@ -96,10 +90,24 @@ export async function submitSignUp(
           openingBalance: 0,
           currentBalance: 0,
           expiryDate,
+          emailVerified: false,
+          verificationCode,
+          verificationCodeExpiresAt,
         },
       })
       memberId = member.id
-    } catch (err) {
+    } catch (err: unknown) {
+      const prismaErr = err as { code?: string; meta?: { target?: string[] | string } }
+      if (prismaErr?.code === 'P2002') {
+        const target = String(prismaErr?.meta?.target || '')
+        if (target.includes('memberNumber')) {
+          return { error: 'An account with this member number already exists.' }
+        }
+        if (target.includes('email')) {
+          return { error: 'An account with this email address already exists.' }
+        }
+        return { error: 'An account with these details already exists.' }
+      }
       console.warn('Database member creation failed, falling back to dev store:', err)
     }
   }
@@ -114,11 +122,30 @@ export async function submitSignUp(
       deviceId,
       tier: 'BASIC',
       expiryDate,
+      emailVerified: false,
+      verificationCode,
+      verificationCodeExpiresAt,
     })
     memberId = member.id
   }
 
   await createSession(memberId, deviceId)
+
+  // Dispatch branded verification email and welcome email
+  if (email) {
+    try {
+      await sendVerificationEmail({ to: email, fullName, code: verificationCode })
+    } catch (err) {
+      console.warn('Verification email delivery failed:', err)
+    }
+
+    try {
+      await sendWelcomeEmail({ to: email, fullName, memberNumber })
+    } catch (err) {
+      console.warn('Welcome email delivery failed:', err)
+    }
+  }
+
   redirect('/member')
 }
 
@@ -129,21 +156,17 @@ export async function submitSignIn(
   _prev: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const memberNumber = formData.get('memberNumber')?.toString()?.trim() || ''
-  if (!memberNumber) {
-    return { error: 'This field must not be empty' }
-  }
-  if (!/^\d{6}$/.test(memberNumber)) {
-    return { error: 'Member number must be exactly 6 numbers.' }
+  const rateLimit = await checkRateLimit(RATE_LIMITS.SIGN_IN)
+  if (!rateLimit.success) {
+    return { error: rateLimit.error }
   }
 
-  const password = formData.get('password')?.toString() || ''
-  if (!password) {
-    return { error: 'This field must not be empty' }
+  const validation = validateWithZod(signInSchema, formData)
+  if (!validation.success) {
+    return { error: validation.error }
   }
-  if (password.length < 6) {
-    return { error: 'Password must be at least 6 characters.' }
-  }
+
+  const { memberNumber, password } = validation.data
 
   const deviceId = await getOrCreateDeviceId()
 
@@ -208,8 +231,17 @@ export async function submitActivationCode(
   _prev: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
-  const { code, error } = validateActivationCode(formData.get('activationCode'))
-  if (error) return { error }
+  const rateLimit = await checkRateLimit(RATE_LIMITS.ACTIVATION_CODE)
+  if (!rateLimit.success) {
+    return { error: rateLimit.error }
+  }
+
+  const validation = validateWithZod(activationCodeSchema, formData)
+  if (!validation.success) {
+    return { error: validation.error }
+  }
+
+  const { activationCode: code } = validation.data
 
   if (hasDatabaseUrl) {
     try {
@@ -259,14 +291,20 @@ export async function submitPin(
   _prev: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  const rateLimit = await checkRateLimit(RATE_LIMITS.PIN_SETUP)
+  if (!rateLimit.success) {
+    return { error: rateLimit.error }
+  }
+
   const memberId = await getPendingActivation()
   if (!memberId) redirect('/auth?view=activate')
 
-  const { pin, error } = validatePin(formData.get('pin'))
-  if (error) return { error }
+  const validation = validateWithZod(pinSetupSchema, formData)
+  if (!validation.success) {
+    return { error: validation.error }
+  }
 
-  const confirm = formData.get('confirmPin')
-  if (confirm !== pin) return { error: 'The two PINs do not match.' }
+  const { pin } = validation.data
 
   const deviceId = await getOrCreateDeviceId()
   const pinHash = await hashPin(pin)

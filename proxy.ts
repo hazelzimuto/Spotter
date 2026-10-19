@@ -41,20 +41,14 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/auth?view=pin', request.url))
   }
 
-  // Root landing page (/) is public for unauthenticated visitors.
+  // Root landing page (/) is public. Authoritative authenticated redirect
+  // is performed inside app/page.tsx using getSession().
   if (pathname === '/') {
-    if (hasSession) {
-      return NextResponse.redirect(new URL('/member', request.url))
-    }
     return NextResponse.next()
   }
 
-  // Authenticated members have no reason to see the auth screens.
-  if (hasSession && isAuthPath(pathname)) {
-    return NextResponse.redirect(new URL('/member', request.url))
-  }
-
-  // Auth flows are public for unauthenticated visitors.
+  // Auth flows are public. Authoritative authenticated redirect is performed
+  // inside app/auth/page.tsx using getSession().
   if (isAuthPath(pathname)) {
     return NextResponse.next()
   }

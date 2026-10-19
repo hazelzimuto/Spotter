@@ -12,9 +12,9 @@ import styles from './landing.module.css'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Spotter — Your gym, at your fingertips',
+  title: 'Spotter | Your gym, at your fingertips',
   description:
-    'Check your attendance, membership balance, and gym rules in seconds — without waiting at the front desk.',
+    'Check your attendance, membership balance, and gym rules in seconds, without waiting at the front desk.',
   keywords: [
     'gym member portal',
     'gym attendance',
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
     follow: true,
   },
   openGraph: {
-    title: 'Spotter — Your gym, at your fingertips',
+    title: 'Spotter | Your gym, at your fingertips',
     description:
-      'Check your attendance, membership balance, and gym rules in seconds — without waiting at the front desk.',
+      'Check your attendance, membership balance, and gym rules in seconds, without waiting at the front desk.',
     type: 'website',
     url: '/',
     siteName: 'Spotter',
@@ -48,9 +48,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Spotter — Your gym, at your fingertips',
+    title: 'Spotter | Your gym, at your fingertips',
     description:
-      'Check your attendance, membership balance, and gym rules in seconds — without waiting at the front desk.',
+      'Check your attendance, membership balance, and gym rules in seconds, without waiting at the front desk.',
     images: ['/hero-bg.jpg'],
   },
 }
@@ -64,7 +64,7 @@ const FEATURES = [
   {
     icon: '🔒',
     title: 'My private records',
-    desc: 'Check your own attendance log and membership balance. Your data is fetched by your member ID only — never shared with or visible to other members.',
+    desc: 'Check your own attendance log and membership balance. Your data is fetched by your member ID only, and is never shared with or visible to other members.',
   },
   {
     icon: '✅',
@@ -79,12 +79,12 @@ const FEATURES = [
   {
     icon: '🤖',
     title: 'Ask the gym',
-    desc: 'Type any question about rules, policies, or schedules. Spotter retrieves answers exclusively from approved gym cards — it never invents or searches the web.',
+    desc: 'Type any question about rules, policies, or schedules. Spotter retrieves answers exclusively from approved gym cards, with no internet searching or guessing.',
   },
   {
     icon: '💬',
     title: 'Ask the desk',
-    desc: "If Spotter can't answer, it opens a direct WhatsApp link to front desk staff — so you always have a fast fallback path.",
+    desc: "If Spotter cannot answer, it opens a direct WhatsApp link to front desk staff so you always have a fast fallback path.",
   },
 ]
 
@@ -102,7 +102,7 @@ const HOW_STEPS = [
   {
     num: '03',
     title: 'Use it every visit',
-    desc: 'Check in with the daily desk code, check your balance, ask about the schedule — all without waiting.',
+    desc: 'Check in with the daily desk code, check your balance, and ask about the schedule without waiting in line.',
   },
 ]
 
@@ -171,7 +171,7 @@ export default async function LandingPage() {
 
             <p className={styles.heroSubtitle}>
               Check your attendance, membership balance, and gym rules in
-              seconds — without waiting at the front desk.
+              seconds, without waiting at the front desk.
             </p>
 
             {/* Client island: hero CTA + modal */}
@@ -222,7 +222,7 @@ export default async function LandingPage() {
             >
               <span className={styles.statNumber}>100%</span>
               <span className={styles.statLabel}>
-                answers grounded in approved gym records — no invention
+                answers grounded in approved gym records with no guesswork
               </span>
             </div>
           </div>

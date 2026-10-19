@@ -335,14 +335,19 @@ function main() {
 
   const cssContent = generateCss(tokens);
 
-  // Write output CSS
-  // Always write to project root so app/globals.css @import "../tokens.css" resolves correctly
-  const outputDir = __dirname;
-
-  const outputPath = path.join(outputDir, 'tokens.css');
+  // Write to app/ so app/globals.css can import it with @import "./tokens.css".
+  // Next.js Turbopack resolves CSS @import paths relative to the importing file;
+  // a path that crosses from app/ up to the project root ("../tokens.css") is
+  // unreliable. Writing the file into app/ eliminates the traversal entirely.
+  const outputPath = path.join(__dirname, 'app', 'tokens.css');
   fs.writeFileSync(outputPath, cssContent, 'utf8');
 
+  // Also keep a root copy for reference and for any tooling that reads it.
+  const rootCopy = path.join(__dirname, 'tokens.css');
+  fs.writeFileSync(rootCopy, cssContent, 'utf8');
+
   console.log(`Successfully generated CSS variables at: ${outputPath}`);
+  console.log(`Root copy also written at: ${rootCopy}`);
 }
 
 if (require.main === module) {

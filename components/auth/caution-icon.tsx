@@ -6,7 +6,7 @@ interface CautionIconProps {
 }
 
 /**
- * CautionIcon — SVG warning triangle displayed alongside inline form error messages.
+ * CautionIcon: SVG warning triangle displayed alongside inline form error messages.
  * Uses currentColor to adapt to the parent error text color token (--color-error).
  */
 export function CautionIcon({ className, size = 14 }: CautionIconProps) {

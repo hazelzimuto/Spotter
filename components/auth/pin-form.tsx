@@ -63,7 +63,10 @@ export function PinForm() {
             setPin(e.target.value.replace(/\D/g, '').slice(0, 4))
             if (!pinTouched) setPinTouched(true)
           }}
-          onBlur={() => setPinTouched(true)}
+          onBlur={() => {
+            setPin((prev) => prev.trim())
+            setPinTouched(true)
+          }}
           required
           aria-invalid={isPinEmpty ? true : state.error ? true : undefined}
           aria-describedby={isPinEmpty ? 'pin-error' : 'pin-help'}
@@ -98,7 +101,10 @@ export function PinForm() {
             setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))
             if (!confirmTouched) setConfirmTouched(true)
           }}
-          onBlur={() => setConfirmTouched(true)}
+          onBlur={() => {
+            setConfirmPin((prev) => prev.trim())
+            setConfirmTouched(true)
+          }}
           required
           aria-invalid={isConfirmEmpty ? true : undefined}
           aria-describedby={isConfirmEmpty ? 'confirmPin-error' : undefined}
