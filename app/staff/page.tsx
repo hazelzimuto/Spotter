@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getStaffSession } from '@/lib/auth/staff-session'
+import { hasPermission, PERMISSIONS } from '@/lib/auth/rbac'
 import { db, hasDatabaseUrl } from '@/lib/db'
 import {
   ReceptionistDashboard,
@@ -15,9 +16,9 @@ export const metadata: Metadata = {
 }
 
 export default async function StaffDashboardPage() {
-  // 1. Enforce strict staff session gate
+  // 1. Enforce strict staff session gate and RBAC permission
   const staff = await getStaffSession()
-  if (!staff) {
+  if (!staff || !hasPermission(staff.role, PERMISSIONS.STAFF_GENERATE_MEMBER)) {
     redirect('/staff/login')
   }
 

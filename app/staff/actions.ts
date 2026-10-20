@@ -15,7 +15,9 @@ import {
   destroyStaffSession,
   getStaffSession,
   ensureDefaultReceptionist,
+  AuthenticatedStaff,
 } from '@/lib/auth/staff-session'
+import { getAuthorizedStaff, PERMISSIONS } from '@/lib/auth/rbac'
 import {
   createIntendingMember,
   IntendingMemberResult,
@@ -230,12 +232,17 @@ export async function generateMemberNumberAction(
   prevState: GenerateMemberState,
   formData: FormData,
 ): Promise<GenerateMemberState> {
-  // 1. Authoritative Staff Session Verification
-  const staff = await getStaffSession()
-  if (!staff) {
+  // 1. Authoritative Staff Session & RBAC Permission Check
+  let staff: AuthenticatedStaff
+  try {
+    staff = await getAuthorizedStaff(PERMISSIONS.STAFF_GENERATE_MEMBER)
+  } catch (authErr) {
     return {
       success: false,
-      error: 'Your staff session has expired or is unauthorized. Please log in again.',
+      error:
+        authErr instanceof Error
+          ? authErr.message
+          : 'You do not have permission to generate member records.',
     }
   }
 

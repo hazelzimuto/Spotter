@@ -507,6 +507,23 @@ This journal tracks engineering decisions, architectural milestones, and impleme
 
 ---
 
+### Phase 40: Application-Level Role-Based Access Control (RBAC)
+- **Granular Permission Matrix (`lib/auth/rbac.ts`)**:
+  - Implemented an authoritative permission catalog covering Member (`member:*`), Staff (`staff:*`), and Owner (`owner:*`) capabilities.
+  - Defined explicit least-privilege mappings in `ROLE_PERMISSIONS`:
+    - `MEMBER`: Access personal profile, attendance history, balance, check in with whiteboard code, ask AI questions, and pay renewals. Barred from administrative actions.
+    - `STAFF`: Generate member numbers, set daily whiteboard check-in codes, log manual check-ins and payments, look up member status, force-unlink devices, and draft shared cards. Barred from owner approvals and member private records.
+    - `OWNER`: Inherits all front-desk operational permissions plus card approvals with vector embeddings, tier assignment, balance adjustments, fee absorption toggles, and wrong answer reviews.
+- **Permission Assertion Guards**:
+  - `hasPermission(role, permission)`: Deterministic boolean capability check.
+  - `assertPermission(role, permission)`: Typed `AuthorizationError` trigger.
+  - `getAuthorizedStaff(requiredPermission)` & `getAuthorizedMember(requiredPermission)`: Validates active authenticated session and executes permission assertion before allowing Server Action mutations.
+- **Server Action & Route Gating Integration**:
+  - Updated `app/staff/actions.ts` (`generateMemberNumberAction`) to assert `PERMISSIONS.STAFF_GENERATE_MEMBER` prior to record creation.
+  - Updated `app/staff/page.tsx` to assert `PERMISSIONS.STAFF_GENERATE_MEMBER` on page render.
+
+---
+
 ## 💡 Key Architectural Decisions & Rationale
 
 1. **Why `proxy.ts` instead of complex database middleware?**
