@@ -77,6 +77,30 @@ export function saveDevMember(data: {
   verificationCodeExpiresAt?: Date | null
   expiryDate?: Date
 }): DevMember {
+  const normalizedEmail = data.email ? data.email.trim().toLowerCase() : null
+
+  // Check if an intending member was already generated and needs activation
+  for (const m of membersMap.values()) {
+    const numberMatch = data.memberNumber && m.memberNumber === data.memberNumber
+    const emailMatch = normalizedEmail && m.email === normalizedEmail
+    if ((numberMatch || emailMatch) && !m.passwordHash) {
+      m.fullName = data.fullName || m.fullName
+      m.phone = data.phone !== undefined ? data.phone : m.phone
+      m.email = normalizedEmail || m.email
+      m.memberNumber = data.memberNumber || m.memberNumber
+      m.pinHash = data.pinHash !== undefined ? data.pinHash : m.pinHash
+      m.passwordHash = data.passwordHash !== undefined ? data.passwordHash : m.passwordHash
+      m.deviceId = data.deviceId !== undefined ? data.deviceId : m.deviceId
+      m.verificationCode =
+        data.verificationCode !== undefined ? data.verificationCode : m.verificationCode
+      m.verificationCodeExpiresAt =
+        data.verificationCodeExpiresAt !== undefined
+          ? data.verificationCodeExpiresAt
+          : m.verificationCodeExpiresAt
+      return m
+    }
+  }
+
   const id = `dev-mem-${randomUUID()}`
   const expiryDate = data.expiryDate ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 
@@ -84,7 +108,7 @@ export function saveDevMember(data: {
     id,
     fullName: data.fullName,
     phone: data.phone ?? null,
-    email: data.email ? data.email.trim().toLowerCase() : null,
+    email: normalizedEmail,
     memberNumber: data.memberNumber ?? null,
     tier: data.tier ?? 'BASIC',
     pinHash: data.pinHash ?? null,
