@@ -427,6 +427,84 @@ This journal tracks engineering decisions, architectural milestones, and impleme
   - Features 6-digit numeric input with monospace letter-spaced styling, inline validation feedback, "Verify Email" action, and "Resend code" action with a 60-second cooldown timer.
   - Transitions into a confirmed state upon successful verification.
 
+### Phase 36: Platform Education Onboarding Flow
+- **Strategic Goal (Education for the Platform)**:
+  - Positioned an interactive onboarding flow directly between account creation and the member dashboard (`/onboarding`).
+  - Chosen specifically to educate new members on Spotter's self-service model, preventing front desk queues upon their first gym visit.
+- **Three Step Educational Walkthrough (`components/onboarding/onboarding-flow.tsx`)**:
+  - **Step 1 (Daily Whiteboard Check-In)**: Explains the daily 4-digit code located on the gym entrance whiteboard and highlights the 4-hour suppression window. Features a simulated whiteboard badge mockup.
+  - **Step 2 (Ask Spotter)**: Explains grounded AI retrieval for gym hours, rules, and equipment, noting that medical advice and billing disputes route directly to WhatsApp front desk staff. Features a verified Q&A mockup.
+  - **Step 3 (Records & Renewals)**: Explains self-service attendance tracking, active day countdowns, single-device binding security, and direct Paystack renewals. Features a membership pass mockup.
+- **Interactive UI & Aurora Theming (`components/onboarding/onboarding.module.css`)**:
+  - Dark mode glassmorphism card with ambient glow, dynamic step badge, progress bar tracker, responsive buttons ("Next", "Back", "Enter Member Portal"), and a "Skip to Dashboard" bypass link.
+  - Personalized with member's first name loaded from session.
+- **Route Gating & Integration**:
+  - Created Server Component at `app/onboarding/page.tsx` verifying session before rendering.
+  - Updated `submitSignUp` in `app/auth/actions.ts` to redirect directly to `/onboarding`.
+
+### Phase 37: Complete Aurora Design System & Light/Dark Mode Unification
+- **Comprehensive Token Audit & Elimination of Ad-Hoc Styles**:
+  - Audited all user-facing surfaces across landing (`app/page.tsx`, `app/landing.module.css`), authentication screens & modals (`components/auth/auth.module.css`, `components/auth/sign-in-modal.tsx`), onboarding (`app/onboarding/`, `components/onboarding/onboarding.module.css`), member dashboard (`app/member/page.tsx`, `app/member/member.module.css`), and email verification banners (`components/member/email-verification-banner.module.css`).
+  - Completely purged hardcoded pixel font sizes, custom line heights, raw rem measurements (`1.125rem`, `0.5rem`), and legacy gray palettes (`#111827`, `#1f2937`, `#374151`).
+  - Switched all typography to official Aurora quintets (`--typography-<role>-font-family`, `--typography-<role>-font-size`, `--typography-<role>-font-weight`, `--typography-<role>-line-height`, `--typography-<role>-letter-spacing`).
+- **Semantic Color Roles & On-Color Enforcement**:
+  - Enforced exact on-color pairings across both Light Mode (`:root`) and Dark Mode (`[data-theme="dark"]`, `@media (prefers-color-scheme: dark)`):
+    - `--color-primary` paired strictly with `--color-on-primary` (Light: `#FFFFFF` on `#4F46E5`; Dark: `#211A64` deep violet on `#C0BCF9` lavender).
+    - `--color-primary-container` paired strictly with `--color-on-primary-container` (Light: `#0D0A3D` on `#DEDBFC`; Dark: `#DEDBFC` on `#352C82`).
+    - `--color-warning-container` paired strictly with `--color-on-warning-container` (Light: `#634407` on `#FFE7B0`; Dark: `#FFE7B0` on `#8A600A`).
+    - `--color-success-container` paired strictly with `--color-on-success-container` (Light: `#15492B` on `#C8ECD3`; Dark: `#C8ECD3` on `#1B6139`).
+    - `--color-error-container` paired strictly with `--color-on-error-container` (Light: `#591310` on `#F7C9C6`; Dark: `#F7C9C6` on `#7F1D19`).
+- **Transactional Email Dark/Light Theme Integration (`lib/email/mailer.ts`)**:
+  - Completely re-engineered `sendWelcomeEmail` and `sendVerificationEmail` HTML templates.
+  - Declared `<meta name="color-scheme" content="light dark">` and embedded `@media (prefers-color-scheme: dark)` styles with exact Aurora token hex values for mail clients supporting dark mode.
+  - In light mode: clean `#FCFCFF` background, `#FFFFFF` card, `#4F46E5` header, `#DEDBFC` badge with `#0D0A3D` numbers.
+  - In dark mode: `#1B1B1F` background, `#303034` card, `#352C82` header with `#DEDBFC` text, `#352C82` badge with `#DEDBFC` numbers.
+  - Maintained zero em-dashes across all email templates and user-facing copy.
+
+### Phase 38: GSAP Outline Motion Illustrations for Onboarding Flow
+- **Package Installation**:
+  - Received user consent and installed `gsap` (GreenSock Animation Platform) in compliance with the AGENTS.md package addition rule.
+- **Pure Outline Motion Components (`components/onboarding/onboarding-illustrations.tsx`)**:
+  - Engineered three dedicated, SVG outline-only motion illustration components (`fill="none"`, consistent `strokeWidth`, smooth corner radii):
+    - **`StepOneIllustration` (Check In with Daily Whiteboard Code)**: Features an outline whiteboard on a tripod easel, an animated dry-erase marker handwriting the 4-digit code sequentially (`4`, `8`, `2`, `1`), an outline member smartphone emitting communication wave arcs, a checkmark validation pulse, and a rotating 4-hour suppression window clock indicator.
+    - **`StepTwoIllustration` (Ask Spotter About Gym Rules & Hours)**: Features a central pulsing AI search orb with concentric outline ripples, surrounded by floating outline gym badges (dumbbell for equipment etiquette, clock for peak schedules, steam waves for sauna/amenities, and a verified policy shield), with floating question/answer dialogue bubbles and animated stroke-dash rays.
+    - **`StepThreeIllustration` (Track Records & Online Renewals)**: Features an outline Spotter digital membership pass with holographic chip and dynamic active-meter arc, a 9-day attendance calendar with sequentially illuminating streak points, contactless Paystack renewal signal waves, and a single-device security padlock that snaps locked.
+- **GSAP Lifecycle & Clean Teardown**:
+  - Built using scoped `gsap.context(..., containerRef)` inside React `useEffect` for clean cleanup and no memory leaks across step transitions.
+  - Built-in `prefers-reduced-motion` detection that gracefully renders crisp static vector illustrations if reduced motion is requested.
+  - Strict consumption of Aurora theme tokens (`var(--color-primary)`, `var(--color-on-surface)`, `var(--color-outline)`, `var(--color-surface-container)`), automatically harmonizing across Light and Dark mode.
+- **Onboarding Integration (`components/onboarding/onboarding-flow.tsx`, `components/onboarding/onboarding.module.css`)**:
+  - Replaced static preview boxes with `.illustrationWrapper` hosting each step's motion illustration.
+
+---
+
+### Phase 39: Front Desk Receptionist Dashboard & Secure Member Number Generation
+- **Perimeter & Role Boundary Separation (`proxy.ts`, `lib/auth/cookies.ts`, `lib/auth/staff-session.ts`)**:
+  - Gated the `/staff` route hierarchy exclusively to authenticated staff sessions via `spotter_staff_session` HTTP-only cookies, separating front desk staff privileges completely from member cookies (`spotter_session`).
+  - Added dedicated 8-hour shift lifetime (`STAFF_SESSION_SECONDS = 8 * 60 * 60`).
+  - Implemented cryptographic HMAC-SHA256 session token signatures coupled with authoritative database checks (`isActive: true` and `role in ['STAFF', 'OWNER']`) on every request to ensure immediate session termination upon staff revocation.
+- **Cryptographic Member Number Generation (`lib/member/generate-number.ts`)**:
+  - Implemented rejection sampling with Node.js `crypto.randomBytes(4)` without modulo bias to uniformly generate 6-digit member numbers between `100000` and `999999`.
+  - Added collision prevention loop with uniqueness checks against Prisma database and fallback dev store.
+  - Implemented human-readable activation codes (`SPT-XXXX`) avoiding ambiguous characters (`0`, `1`, `I`, `O`).
+- **Security & Unlinked Credential Guarantees (`createIntendingMember`)**:
+  - Followed zero-trust member privacy principles: new intending member records initialize with `deviceId: null`, `pinHash: null`, and `passwordHash: null`.
+  - Staff never see or set member PINs. The intending member binds their own personal device and sets their private PIN at `/activate`.
+  - Opening balance stored strictly as integer kobo.
+- **Rate Limiting & Abuse Prevention (`lib/rate-limit.ts`, `app/staff/actions.ts`)**:
+  - Added `STAFF_LOGIN` (5 attempts / 15 minutes per IP) to prevent credential stuffing.
+  - Added `STAFF_GENERATE_MEMBER` (30 member creations / hour per staff ID) to prevent automated flooding.
+- **Aurora-Compliant Front Desk UI (`components/staff/`, `app/staff/`)**:
+  - `components/staff/staff.module.css`: Styled 100% with Aurora tokens (`--color-*`, `--spacing-*`, `--radius-*`, `--typography-*`) with complete Light and Dark mode adaptability. Zero em-dashes across all text and UI elements.
+  - `components/staff/staff-login-form.tsx`: Desk sign-in form with security advisory notice, field validation, and dev-seed helper for initial setup.
+  - `components/staff/receptionist-dashboard.tsx`: Front desk dashboard featuring:
+    - Receptionist identity header and role badge.
+    - New Member Details form with Tier toggle, duration selector, and kobo balance tracking.
+    - Assigned Member Number success display with 1-click clipboard copy and receptionist handover protocol.
+    - Security perimeter guardrails panel detailing cryptographic sampling and device binding rules.
+    - Real-time recent desk registrations table monitoring device activation status (`Pending Setup` vs `Active`).
+  - `app/staff/page.tsx` & `app/staff/login/page.tsx`: Route entry points enforcing session gates.
+
 ---
 
 ## 💡 Key Architectural Decisions & Rationale

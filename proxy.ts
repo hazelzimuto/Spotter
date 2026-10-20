@@ -11,6 +11,7 @@ import { NextResponse, type NextRequest } from 'next/server'
  */
 
 const SESSION_COOKIE = 'spotter_session'
+const STAFF_SESSION_COOKIE = 'spotter_staff_session'
 
 /** Auth and activation paths reachable without a session. */
 const AUTH_PATHS = ['/auth', '/activate', '/activate/pin']
@@ -24,6 +25,7 @@ function isAuthPath(pathname: string) {
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value)
+  const hasStaffSession = Boolean(request.cookies.get(STAFF_SESSION_COOKIE)?.value)
 
   // Redirect legacy /privacy and /terms URLs to the home page conditional views.
   if (pathname === '/privacy') {
@@ -41,6 +43,22 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/auth?view=pin', request.url))
   }
 
+  // Staff perimeter: protected staff routes require an active staff session
+  if (pathname.startsWith('/staff')) {
+    if (pathname === '/staff/login') {
+      if (hasStaffSession) {
+        return NextResponse.redirect(new URL('/staff', request.url))
+      }
+      return NextResponse.next()
+    }
+
+    if (!hasStaffSession) {
+      return NextResponse.redirect(new URL('/staff/login', request.url))
+    }
+
+    return NextResponse.next()
+  }
+
   // Root landing page (/) is public. Authoritative authenticated redirect
   // is performed inside app/page.tsx using getSession().
   if (pathname === '/') {
@@ -53,7 +71,7 @@ export default function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Protected routes require an active session.
+  // Protected member routes require an active member session.
   if (!hasSession) {
     return NextResponse.redirect(new URL('/', request.url))
   }

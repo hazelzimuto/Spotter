@@ -146,7 +146,7 @@ export async function submitSignUp(
     }
   }
 
-  redirect('/member')
+  redirect('/onboarding')
 }
 
 /**

@@ -1,0 +1,92 @@
+/*
+ * MEMBER PORTAL STYLES
+ * Strictly consumes Aurora design system tokens from tokens.css.
+ * No hardcoded colors, typography, or spacing values permitted.
+ */
+
+.container {
+  max-width: 640px;
+  margin: var(--spacing-16) auto;
+  padding: var(--spacing-6);
+  font-family: var(--typography-font-family-primary);
+  color: var(--color-on-background);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-8);
+}
+
+.heading {
+  font-family: var(--typography-headline-small-font-family);
+  font-size: var(--typography-headline-small-font-size);
+  font-weight: var(--typography-headline-small-font-weight);
+  line-height: var(--typography-headline-small-line-height);
+  letter-spacing: var(--typography-headline-small-letter-spacing);
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.signOutBtn {
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--component-button-radius);
+  border: var(--border-width-thin) solid var(--color-outline);
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+  font-family: var(--typography-label-large-font-family);
+  font-size: var(--typography-label-large-font-size);
+  font-weight: var(--typography-label-large-font-weight);
+  line-height: var(--typography-label-large-line-height);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing-standard),
+    border-color var(--motion-duration-fast) var(--motion-easing-standard);
+}
+
+.signOutBtn:hover {
+  background-color: var(--color-surface-container-highest);
+  border-color: var(--color-outline-variant);
+}
+
+.statusCard {
+  background-color: var(--color-surface-container-low);
+  border: var(--border-width-thin) solid var(--color-outline-variant);
+  border-radius: var(--component-card-radius, var(--radius-lg));
+  padding: var(--component-card-padding, var(--spacing-6));
+  box-shadow: var(--elevation-level1);
+}
+
+.cardSubtext {
+  font-family: var(--typography-label-medium-font-family);
+  font-size: var(--typography-label-medium-font-size);
+  font-weight: var(--typography-label-medium-font-weight);
+  line-height: var(--typography-label-medium-line-height);
+  letter-spacing: var(--typography-label-medium-letter-spacing);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-1);
+}
+
+.memberName {
+  font-family: var(--typography-title-large-font-family);
+  font-size: var(--typography-title-large-font-size);
+  font-weight: var(--typography-title-large-font-weight);
+  line-height: var(--typography-title-large-line-height);
+  letter-spacing: var(--typography-title-large-letter-spacing);
+  color: var(--color-on-surface);
+  margin-bottom: var(--spacing-4);
+}
+
+.tierBadge {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-family: var(--typography-label-small-font-family);
+  font-size: var(--typography-label-small-font-size);
+  font-weight: var(--typography-label-small-font-weight);
+  line-height: var(--typography-label-small-line-height);
+  letter-spacing: var(--typography-label-small-letter-spacing);
+}

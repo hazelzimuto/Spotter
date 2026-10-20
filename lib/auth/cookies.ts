@@ -32,6 +32,15 @@ export const TEN_YEARS_SECONDS = 60 * 60 * 24 * 365 * 10
 /** The activation code only needs to survive the hop to the PIN screen. */
 export const PENDING_ACTIVATION_SECONDS = 60 * 10
 
+/**
+ * Staff / Receptionist session cookie.
+ * Kept strictly isolated from member device sessions.
+ */
+export const STAFF_SESSION_COOKIE = 'spotter_staff_session'
+
+/** 8-hour shift lifetime for staff desk sessions to enforce operational security. */
+export const STAFF_SESSION_SECONDS = 8 * 60 * 60
+
 export function isSecureInProduction() {
   return process.env.NODE_ENV === 'production'
 }

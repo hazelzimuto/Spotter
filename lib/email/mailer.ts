@@ -102,22 +102,124 @@ export async function sendWelcomeEmail({ to, fullName, memberNumber }: WelcomeEm
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
   <title>Welcome to Spotter</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0c10; color: #f3f4f6; margin: 0; padding: 24px; }
-    .card { max-width: 540px; margin: 0 auto; background: #13141b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; }
-    .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 32px 24px; text-align: center; }
-    .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
-    .content { padding: 32px 24px; line-height: 1.6; }
-    .member-badge { background: rgba(79, 70, 229, 0.12); border: 1px solid rgba(79, 70, 229, 0.3); border-radius: 8px; padding: 16px; margin: 24px 0; text-align: center; }
-    .member-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 6px; }
-    .member-num { font-size: 28px; font-weight: 800; letter-spacing: 0.1em; color: #a5b4fc; font-family: monospace; }
-    .btn { display: inline-block; background: #4f46e5; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; margin-top: 16px; }
-    .footer { padding: 20px 24px; font-size: 12px; color: #6b7280; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+    :root {
+      color-scheme: light dark;
+      supported-color-schemes: light dark;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #FCFCFF;
+      color: #1B1B1F;
+      margin: 0;
+      padding: 24px 16px;
+    }
+    .wrapper {
+      max-width: 560px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      border: 1px solid #C9C5D0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #4F46E5 0%, #352C82 100%);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #FFFFFF;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .content {
+      padding: 32px 24px;
+      line-height: 1.6;
+      color: #1B1B1F;
+    }
+    .content p {
+      margin: 0 0 16px 0;
+      font-size: 15px;
+    }
+    .member-badge {
+      background-color: #DEDBFC;
+      border: 1px solid #C9C5D0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .member-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #47454F;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .member-num {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #0D0A3D;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .footer {
+      padding: 20px 24px;
+      font-size: 12px;
+      color: #787680;
+      text-align: center;
+      border-top: 1px solid #C9C5D0;
+      background-color: #FCFCFF;
+    }
+    .footer p {
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1B1B1F !important;
+        color: #E5E2E6 !important;
+      }
+      .wrapper {
+        background-color: #303034 !important;
+        border-color: #47454F !important;
+      }
+      .header {
+        background: linear-gradient(135deg, #352C82 0%, #211A64 100%) !important;
+      }
+      .header h1 {
+        color: #DEDBFC !important;
+      }
+      .content {
+        color: #E5E2E6 !important;
+      }
+      .member-badge {
+        background-color: #352C82 !important;
+        border-color: #47454F !important;
+      }
+      .member-label {
+        color: #DEDBFC !important;
+      }
+      .member-num {
+        color: #DEDBFC !important;
+      }
+      .footer {
+        background-color: #303034 !important;
+        border-color: #47454F !important;
+        color: #928F9A !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="wrapper">
     <div class="header">
       <h1>Spotter Gym</h1>
     </div>
@@ -177,21 +279,131 @@ export async function sendVerificationEmail({ to, fullName, code }: Verification
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
   <title>Verify your email</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0c10; color: #f3f4f6; margin: 0; padding: 24px; }
-    .card { max-width: 540px; margin: 0 auto; background: #13141b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; }
-    .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 32px 24px; text-align: center; }
-    .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
-    .content { padding: 32px 24px; line-height: 1.6; }
-    .code-badge { background: rgba(79, 70, 229, 0.12); border: 1px solid rgba(79, 70, 229, 0.3); border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center; }
-    .code-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 8px; }
-    .code-num { font-size: 32px; font-weight: 800; letter-spacing: 0.25em; color: #a5b4fc; font-family: monospace; }
-    .footer { padding: 20px 24px; font-size: 12px; color: #6b7280; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+    :root {
+      color-scheme: light dark;
+      supported-color-schemes: light dark;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #FCFCFF;
+      color: #1B1B1F;
+      margin: 0;
+      padding: 24px 16px;
+    }
+    .wrapper {
+      max-width: 560px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      border: 1px solid #C9C5D0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #4F46E5 0%, #352C82 100%);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #FFFFFF;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .content {
+      padding: 32px 24px;
+      line-height: 1.6;
+      color: #1B1B1F;
+    }
+    .content p {
+      margin: 0 0 16px 0;
+      font-size: 15px;
+    }
+    .code-badge {
+      background-color: #DEDBFC;
+      border: 1px solid #C9C5D0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .code-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #47454F;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .code-num {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 0.25em;
+      color: #0D0A3D;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .note {
+      font-size: 13px;
+      color: #47454F;
+    }
+    .footer {
+      padding: 20px 24px;
+      font-size: 12px;
+      color: #787680;
+      text-align: center;
+      border-top: 1px solid #C9C5D0;
+      background-color: #FCFCFF;
+    }
+    .footer p {
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1B1B1F !important;
+        color: #E5E2E6 !important;
+      }
+      .wrapper {
+        background-color: #303034 !important;
+        border-color: #47454F !important;
+      }
+      .header {
+        background: linear-gradient(135deg, #352C82 0%, #211A64 100%) !important;
+      }
+      .header h1 {
+        color: #DEDBFC !important;
+      }
+      .content {
+        color: #E5E2E6 !important;
+      }
+      .code-badge {
+        background-color: #352C82 !important;
+        border-color: #47454F !important;
+      }
+      .code-label {
+        color: #DEDBFC !important;
+      }
+      .code-num {
+        color: #DEDBFC !important;
+      }
+      .note {
+        color: #C9C5D0 !important;
+      }
+      .footer {
+        background-color: #303034 !important;
+        border-color: #47454F !important;
+        color: #928F9A !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="wrapper">
     <div class="header">
       <h1>Spotter Gym</h1>
     </div>
@@ -204,7 +416,7 @@ export async function sendVerificationEmail({ to, fullName, code }: Verification
         <div class="code-num">${code}</div>
       </div>
 
-      <p style="font-size: 13px; color: #9ca3af;">This code is valid for 24 hours. If you did not create a Spotter account, you can safely ignore this email.</p>
+      <p class="note">This code is valid for 24 hours. If you did not create a Spotter account, you can safely ignore this email.</p>
     </div>
     <div class="footer">
       <p>Spotter: Your gym, at your fingertips.<br>This is an automated notification, please do not reply directly.</p>

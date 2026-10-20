@@ -193,8 +193,8 @@ function SignInForm() {
             backgroundColor: 'var(--color-error-container)',
             color: 'var(--color-on-error-container)',
             borderRadius: 'var(--radius-sm)',
-            fontSize: 'var(--typography-font-size-13)',
-            lineHeight: 1.4,
+            fontSize: 'var(--typography-body-small-font-size)',
+            lineHeight: 'var(--typography-body-small-line-height)',
           }}
           role="alert"
         >
@@ -334,7 +334,14 @@ function SignInForm() {
 function SignUpPanel() {
   return (
     <div className={styles.modalForm}>
-      <p className={styles.modalFootnote} style={{ textAlign: 'left', fontSize: '0.9rem' }}>
+      <p
+        className={styles.modalFootnote}
+        style={{
+          textAlign: 'left',
+          fontSize: 'var(--typography-body-medium-font-size)',
+          lineHeight: 'var(--typography-body-medium-line-height)',
+        }}
+      >
         Create your Spotter account directly to track your workouts, attendance, and gym rules on this device.
       </p>
 

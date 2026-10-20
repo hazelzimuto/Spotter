@@ -163,4 +163,17 @@ export const RATE_LIMITS = {
     windowMs: 10 * 60 * 1000, // 3 resend requests per 10 minutes
     errorMessage: 'Too many verification code requests. Please wait a few minutes before requesting another code.',
   },
+  STAFF_LOGIN: {
+    action: 'staff:login',
+    limit: 5,
+    windowMs: 15 * 60 * 1000, // 5 requests per 15 minutes
+    errorMessage: 'Too many staff login attempts. Access is temporarily locked. Please try again in 15 minutes.',
+  },
+  STAFF_GENERATE_MEMBER: {
+    action: 'staff:generate-member',
+    limit: 30,
+    windowMs: 60 * 60 * 1000, // 30 member creations per hour per IP
+    errorMessage: 'Rate limit exceeded for member registration. Please contact the gym administrator.',
+  },
 } as const
+
