@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getStaffSession } from '@/lib/auth/staff-session'
+import { getStaffSession, ensureDefaultReceptionist } from '@/lib/auth/staff-session'
 import { StaffLoginForm } from '@/components/staff/staff-login-form'
 
 export const metadata: Metadata = {
@@ -13,6 +13,9 @@ export default async function StaffLoginPage() {
   if (staff) {
     redirect('/staff')
   }
+
+  // Ensure default receptionist account is ready
+  await ensureDefaultReceptionist()
 
   return <StaffLoginForm />
 }

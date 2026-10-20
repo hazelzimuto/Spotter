@@ -163,6 +163,29 @@ export async function staffLoginAction(
     }
   }
 
+  // If default receptionist was attempted but not yet initialized in DB, auto-seed and reload
+  if (!staffRecord && normalizedEmail === 'desk@spottergym.com') {
+    await ensureDefaultReceptionist()
+    if (hasDatabaseUrl) {
+      try {
+        const seeded = await db.staff.findUnique({
+          where: { email: normalizedEmail },
+        })
+        if (seeded && seeded.email && seeded.pinHash) {
+          staffRecord = {
+            id: seeded.id,
+            role: seeded.role,
+            email: seeded.email,
+            pinHash: seeded.pinHash,
+            isActive: seeded.isActive,
+          }
+        }
+      } catch (err) {
+        console.warn('Error reloading seeded staff:', err)
+      }
+    }
+  }
+
   // Generic rejection to avoid email enumeration
   if (!staffRecord || !staffRecord.isActive) {
     return {
