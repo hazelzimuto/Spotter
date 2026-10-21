@@ -1,9 +1,28 @@
+# Dependencies and build outputs
 node_modules
 .next
+tokens.css
+*.tsbuildinfo
+.DS_Store
+.vscode
+
+# Environment variables
 .env
 .env.local
 .env.production
-tokens.css
-.DS_Store
-*.tsbuildinfo
-.vscode
+
+# Context and agent documentation folders
+.agent/
+agent/
+skills/
+rules/
+Docs/
+
+# Non-functional markdown files
+journal.md
+testmembers.md
+AGENTS.md
+
+# Ignore any other non-functional markdown while preserving README.md
+*.md
+!README.md
