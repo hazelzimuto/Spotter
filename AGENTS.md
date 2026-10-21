@@ -68,6 +68,7 @@ Ground every answer exclusively in approved records and enforce safety refusal r
 - Ask before adding packages.
 - Always use Nodemailer via lib/email/mailer.ts to send emails; do not introduce alternative mail libraries.
 - Never execute raw SQL commands or schema migrations directly; access data exclusively through Prisma ORM within Next JS Server Actions.
+- Always keep commit messages descriptive and in plain English.
 - List assumptions at the end of every response.
 - Stop and ask when the PRD is silent about anything.
 
