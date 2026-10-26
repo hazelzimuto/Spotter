@@ -155,7 +155,7 @@ export async function createIntendingMember(
           deviceId: null,
           pinHash: null,
           passwordHash: null,
-          emailVerified: false,
+          emailVerified: true,
         },
       })
       memberId = created.id
@@ -176,7 +176,7 @@ export async function createIntendingMember(
       activationCode,
       tier,
       expiryDate,
-      emailVerified: false,
+      emailVerified: true,
     })
     memberId = devCreated.id
   }

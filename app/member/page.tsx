@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSession, destroySession } from '@/lib/auth/session'
-import { EmailVerificationBanner } from '@/components/member/email-verification-banner'
 import styles from './member.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -39,12 +38,7 @@ export default async function MemberPage() {
         </form>
       </header>
 
-      {session.email && !session.emailVerified && (
-        <EmailVerificationBanner
-          email={session.email}
-          initialVerified={session.emailVerified}
-        />
-      )}
+
 
       <section className={styles.statusCard}>
         <p className={styles.cardSubtext}>

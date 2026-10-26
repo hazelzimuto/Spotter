@@ -165,7 +165,7 @@ export async function getSession(): Promise<AuthenticatedMember | null> {
     tier: member.tier,
     fullName: member.fullName,
     email: member.email,
-    emailVerified: member.emailVerified ?? false,
+    emailVerified: member.emailVerified ?? true,
   }
 }
 

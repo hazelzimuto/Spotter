@@ -25,11 +25,7 @@ import {
   isPasswordBreached,
 } from '@/lib/validation/auth'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
-import { sendWelcomeEmail, sendVerificationEmail } from '@/lib/email/mailer'
-import {
-  generateEmailVerificationCode,
-  VERIFICATION_CODE_EXPIRY_MS,
-} from '@/lib/auth/email-verification'
+import { sendWelcomeEmail } from '@/lib/email/mailer'
 
 export type AuthFormState = {
   error?: string
@@ -70,10 +66,6 @@ export async function submitSignUp(
   const expiryDate = new Date()
   expiryDate.setDate(expiryDate.getDate() + 30)
 
-  // Generate secure 6-digit email verification code via randomBytes
-  const verificationCode = generateEmailVerificationCode()
-  const verificationCodeExpiresAt = new Date(Date.now() + VERIFICATION_CODE_EXPIRY_MS)
-
   let memberId: string | null = null
   const normalizedEmail = email ? email.trim().toLowerCase() : null
 
@@ -110,8 +102,7 @@ export async function submitSignUp(
             passwordHash,
             pinHash: passwordHash,
             deviceId,
-            verificationCode,
-            verificationCodeExpiresAt,
+            emailVerified: true,
           },
         })
         memberId = updated.id
@@ -128,9 +119,7 @@ export async function submitSignUp(
             openingBalance: 0,
             currentBalance: 0,
             expiryDate,
-            emailVerified: false,
-            verificationCode,
-            verificationCodeExpiresAt,
+            emailVerified: true,
           },
         })
         memberId = member.id
@@ -161,23 +150,15 @@ export async function submitSignUp(
       deviceId,
       tier: 'BASIC',
       expiryDate,
-      emailVerified: false,
-      verificationCode,
-      verificationCodeExpiresAt,
+      emailVerified: true,
     })
     memberId = member.id
   }
 
   await createSession(memberId, deviceId)
 
-  // Dispatch branded verification email and welcome email
+  // Dispatch branded welcome email
   if (email) {
-    try {
-      await sendVerificationEmail({ to: email, fullName, code: verificationCode })
-    } catch (err) {
-      console.warn('Verification email delivery failed:', err)
-    }
-
     try {
       await sendWelcomeEmail({ to: email, fullName, memberNumber })
     } catch (err) {

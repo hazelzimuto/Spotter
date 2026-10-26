@@ -115,7 +115,7 @@ export function saveDevMember(data: {
     passwordHash: data.passwordHash ?? null,
     deviceId: data.deviceId ?? null,
     activationCode: data.activationCode ?? null,
-    emailVerified: data.emailVerified ?? false,
+    emailVerified: data.emailVerified ?? true,
     verificationCode: data.verificationCode ?? null,
     verificationCodeExpiresAt: data.verificationCodeExpiresAt ?? null,
     createdAt: new Date(),
