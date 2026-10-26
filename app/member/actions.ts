@@ -200,3 +200,53 @@ export async function resendEmailVerification(): Promise<VerificationActionState
     message: 'A fresh 6-digit verification code has been sent to your email.',
   }
 }
+
+/**
+ * Server action to initiate a Stripe checkout session for membership subscription renewal.
+ */
+export async function initiateSubscriptionPayment(planId: string): Promise<import('@/lib/payments/stripe').InitiatePaymentResult> {
+  const session = await getSession()
+  if (!session) {
+    return { success: false, reference: '', error: 'Your session has expired. Please sign in again.' }
+  }
+
+  const { headers } = await import('next/headers')
+  const reqHeaders = await headers()
+  const host = reqHeaders.get('host') || 'localhost:3000'
+  const proto = reqHeaders.get('x-forwarded-proto') || 'http'
+  const origin = `${proto}://${host}`
+
+  const { initiateSubscriptionCheckout } = await import('@/lib/payments/stripe')
+  return await initiateSubscriptionCheckout({
+    memberId: session.memberId,
+    email: session.email,
+    fullName: session.fullName,
+    planId,
+    origin,
+  })
+}
+
+/**
+ * Server action to confirm a subscription payment renewal and revalidate member portal.
+ */
+export async function completeSubscriptionPayment(reference: string, planId?: string) {
+  const session = await getSession()
+  if (!session) {
+    return { success: false, error: 'Your session has expired. Please sign in again.' }
+  }
+
+  const { confirmSubscriptionPayment } = await import('@/lib/payments/stripe')
+  const res = await confirmSubscriptionPayment({
+    reference,
+    memberId: session.memberId,
+    planId,
+  })
+
+  if (res.success) {
+    revalidatePath('/member')
+    return { success: true, message: 'Subscription renewed successfully.' }
+  }
+
+  return { success: false, error: res.error || 'Failed to confirm renewal.' }
+}
+
