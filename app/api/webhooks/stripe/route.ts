@@ -1,5 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { confirmSubscriptionPayment } from '@/lib/payments/stripe'
+import {
+  confirmSubscriptionPayment,
+  getStripeSecretKey,
+  getStripeWebhookSecret,
+} from '@/lib/payments/stripe'
 import type Stripe from 'stripe'
 
 export const dynamic = 'force-dynamic'
@@ -15,8 +19,8 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text()
     const signature = req.headers.get('stripe-signature')
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+    const webhookSecret = getStripeWebhookSecret()
+    const stripeSecretKey = getStripeSecretKey()
 
     let event: Stripe.Event
 

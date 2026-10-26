@@ -7,7 +7,7 @@ import {
   formatGbp,
   calculateUkVat,
   type SubscriptionPlan,
-} from '@/lib/payments/stripe'
+} from '@/lib/payments/plans'
 import {
   initiateSubscriptionPayment,
   completeSubscriptionPayment,
