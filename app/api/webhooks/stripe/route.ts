@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import crypto from 'node:crypto'
 import { confirmSubscriptionPayment } from '@/lib/payments/stripe'
+import type Stripe from 'stripe'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,37 +16,26 @@ export async function POST(req: NextRequest) {
     const rawBody = await req.text()
     const signature = req.headers.get('stripe-signature')
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
 
-    // Signature verification if webhook secret is configured
-    if (webhookSecret && signature) {
-      const parts = signature.split(',')
-      const timestampPart = parts.find((p) => p.startsWith('t='))
-      const signaturePart = parts.find((p) => p.startsWith('v1='))
+    let event: Stripe.Event
 
-      if (!timestampPart || !signaturePart) {
-        return NextResponse.json({ error: 'Invalid Stripe signature format' }, { status: 400 })
-      }
-
-      const timestamp = timestampPart.replace('t=', '')
-      const expectedSig = signaturePart.replace('v1=', '')
-      const signedPayload = `${timestamp}.${rawBody}`
-
-      const hmac = crypto
-        .createHmac('sha256', webhookSecret)
-        .update(signedPayload)
-        .digest('hex')
-
-      if (hmac !== expectedSig) {
-        console.warn('Stripe webhook signature mismatch rejected')
+    if (webhookSecret && signature && stripeSecretKey) {
+      try {
+        const StripeModule = (await import('stripe')).default
+        const stripe = new StripeModule(stripeSecretKey)
+        event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret)
+      } catch (err) {
+        console.warn('Stripe webhook signature validation failed:', err)
         return NextResponse.json({ error: 'Signature verification failed' }, { status: 400 })
       }
+    } else {
+      event = JSON.parse(rawBody) as Stripe.Event
     }
-
-    const event = JSON.parse(rawBody)
 
     // Handle completed checkout session
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object
+      const session = event.data.object as Stripe.Checkout.Session
       const reference = session.client_reference_id
       const memberId = session.metadata?.memberId
       const planId = session.metadata?.planId

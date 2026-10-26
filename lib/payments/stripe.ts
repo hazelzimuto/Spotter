@@ -146,61 +146,59 @@ export async function initiateSubscriptionCheckout({
     }
   }
 
-  // 2. If Stripe Secret Key is available, create native Stripe Checkout Session
+  // 2. If Stripe Secret Key is available, create native Stripe Checkout Session via official SDK
   if (stripeSecretKey) {
     try {
-      const params = new URLSearchParams()
-      params.append('payment_method_types[0]', 'card')
-      params.append('mode', 'payment')
-      params.append('client_reference_id', reference)
-      if (email) {
-        params.append('customer_email', email)
-      }
-      params.append('success_url', `${origin}/member?payment=success&ref=${reference}&plan=${plan.id}`)
-      params.append('cancel_url', `${origin}/member?payment=cancelled`)
+      const Stripe = (await import('stripe')).default
+      const stripe = new Stripe(stripeSecretKey)
 
-      params.append('metadata[memberId]', memberId)
-      params.append('metadata[planId]', plan.id)
-      params.append('metadata[tier]', plan.tier)
-      params.append('metadata[interval]', plan.interval)
-
-      params.append('line_items[0][price_data][currency]', 'gbp')
-      params.append('line_items[0][price_data][unit_amount]', String(plan.pricePence))
-      params.append('line_items[0][price_data][product_data][name]', `Spotter ${plan.name}`)
-      params.append('line_items[0][price_data][product_data][description]', plan.description)
-      params.append('line_items[0][quantity]', '1')
-
-      const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${stripeSecretKey}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        client_reference_id: reference,
+        customer_email: email || undefined,
+        success_url: `${origin}/member?payment=success&ref=${reference}&plan=${plan.id}`,
+        cancel_url: `${origin}/member?payment=cancelled`,
+        metadata: {
+          memberId,
+          planId: plan.id,
+          tier: plan.tier,
+          interval: plan.interval,
         },
-        body: params.toString(),
+        line_items: [
+          {
+            price_data: {
+              currency: 'gbp',
+              unit_amount: plan.pricePence,
+              product_data: {
+                name: `Spotter ${plan.name}`,
+                description: plan.description,
+              },
+            },
+            quantity: 1,
+          },
+        ],
       })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        console.error('Stripe API error:', data)
+      if (!session.url) {
         return {
           success: false,
           reference,
-          error: data.error?.message || 'Unable to initialize Stripe checkout session.',
+          error: 'Stripe did not return a valid checkout session URL.',
         }
       }
 
       return {
         success: true,
-        url: data.url,
+        url: session.url,
         reference,
       }
-    } catch (err) {
-      console.error('Stripe checkout call failed:', err)
+    } catch (err: unknown) {
+      console.error('Stripe SDK checkout call failed:', err)
+      const message = err instanceof Error ? err.message : 'Stripe checkout initialization failed.'
       return {
         success: false,
         reference,
-        error: 'Network failure communicating with Stripe gateway.',
+        error: message,
       }
     }
   }
